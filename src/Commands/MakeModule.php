@@ -40,7 +40,7 @@ class MakeModule extends Command
     $this->createDatabaseDirectory($modulePath);
     $this->createModelsDirectory($modulePath, $moduleName)
     $this->createServicesDirectory($modulePath);
-    $this->createProvidersDirectory($modulePath);
+    $this->createProvidersDirectory($modulePath, $moduleName);
     $this->createControllersDirectory($modulePath);
     $this->createRoutesDirectory($modulePath);
 
@@ -122,16 +122,19 @@ class MakeModule extends Command
     }
   }
  
-  protected function createProvidersDirectory($modulePath)
-  {
-    $directoryPath = "{$modulePath}/Providers";
-    if (!$this->files->exists($directoryPath)) {
-      $this->files->makeDirectory($directoryPath, 0755, true);
-      $this->info("Directory {$directoryPath} created successfully.");
-    } else {
-      $this->info("Directory {$directoryPath} already exists.");
+    protected function createServiceProviderFile($modulePath, $moduleName)
+    {
+      $providerName = "{$moduleName}ServiceProvider";
+      $providerPath = "{$modulePath}/Providers/{$providerName}.php";
+
+      if (!$this->files->exists($providerPath)) {
+        $providerContent = "<?php\n\nnamespace Modules\\{$moduleName}\Providers;\n\nuse Illuminate\Support\ServiceProvider;\n\nclass {$providerName} extends ServiceProvider\n{\n    public function boot(): void\n    {\n        \$this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');\n        \$this->mergeConfigFrom(__DIR__ . '/../config.php', strtolower('{$moduleName}'));\n    }\n}\n";
+        $this->files->put($providerPath, $providerContent);
+        $this->info("ServiceProvider file {$providerPath} created successfully.");
+      } else {
+        $this->info("ServiceProvider file {$providerPath} already exists.");
+      }
     }
-  }
 
   protected function createRoutesDirectory($modulePath)
   {
