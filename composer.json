@@ -1,0 +1,28 @@
+{
+    "name": "jackwander/laravel-module-maker",
+    "version": "1.0.0",
+    "description": "Laravel Custom module maker for SDG",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Jackwander\\LaravelModuleMaker\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jerwin",
+            "email": "me@jackwander.pro"
+        }
+    ],
+    "require": {
+        "php": "^7.3|^8.0",
+        "illuminate/support": "^7.0|^8.0|^9.0"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Jackwander\\ModuleMaker\\ModuleServiceProvider"
+            ]
+        }
+    }
+}
