@@ -37,19 +37,19 @@ class MakeModule extends Command
     }
 
     $this->createConfigFile($modulePath);
-    $this->createDatabaseDirectory($modulePath);
-    $this->createModelsDirectory($modulePath, $moduleName)
-    $this->createServicesDirectory($modulePath);
-    $this->createProvidersDirectory($modulePath, $moduleName);
-    $this->createControllersDirectory($modulePath);
-    $this->createRoutesDirectory($modulePath);
+    $this->createDatabaseDirectory($moduleName);
+    $this->createModelsDirectory($moduleName)
+    $this->createServicesDirectory($moduleName);
+    $this->createServiceProviderFile($moduleName);
+    $this->createControllersDirectory($moduleName);
+    $this->createRoutesDirectory($moduleName);
 
     $this->info("Module {$moduleName} created successfully.");
   }
 
-  protected function createControllersDirectory($modulePath)
+  protected function createControllersDirectory($moduleName)
   {
-    $directoryPath = "{$modulePath}/Controllers";
+    $directoryPath = "app/Modules/{$moduleName}/Controllers";
     if (!$this->files->exists($directoryPath)) {
       $this->files->makeDirectory($directoryPath, 0755, true);
       $this->info("Directory {$directoryPath} created successfully.");
@@ -58,9 +58,9 @@ class MakeModule extends Command
     }
   }
 
-  protected function createDatabaseDirectory($modulePath)
+  protected function createDatabaseDirectory($moduleName)
   {
-    $directoryPath = "{$modulePath}/Database";
+    $directoryPath = "app/Modules/{$moduleName}/Database";
     if (!$this->files->exists($directoryPath)) {
         $this->files->makeDirectory($directoryPath, 0755, true);
         $this->info("Directory {$directoryPath} created successfully.");
@@ -97,9 +97,9 @@ class MakeModule extends Command
   }
 
 
-  protected function createModelsDirectory($modulePath)
+  protected function createModelsDirectory($moduleName)
   {
-    $directoryPath = "{$modulePath}/Models";
+    $directoryPath = "app/Modules/{$moduleName}/Database";
     if (!$this->files->exists($directoryPath)) {
       $this->files->makeDirectory($directoryPath, 0755, true);
       $this->info("Directory {$directoryPath} created successfully.");
@@ -121,24 +121,24 @@ class MakeModule extends Command
       $this->info("Model file {$modelPath} already exists.");
     }
   }
- 
-    protected function createServiceProviderFile($modulePath, $moduleName)
-    {
-      $providerName = "{$moduleName}ServiceProvider";
-      $providerPath = "{$modulePath}/Providers/{$providerName}.php";
 
-      if (!$this->files->exists($providerPath)) {
-        $providerContent = "<?php\n\nnamespace Modules\\{$moduleName}\Providers;\n\nuse Illuminate\Support\ServiceProvider;\n\nclass {$providerName} extends ServiceProvider\n{\n    public function boot(): void\n    {\n        \$this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');\n        \$this->mergeConfigFrom(__DIR__ . '/../config.php', strtolower('{$moduleName}'));\n    }\n}\n";
-        $this->files->put($providerPath, $providerContent);
-        $this->info("ServiceProvider file {$providerPath} created successfully.");
-      } else {
-        $this->info("ServiceProvider file {$providerPath} already exists.");
-      }
-    }
-
-  protected function createRoutesDirectory($modulePath)
+  protected function createServiceProviderFile($moduleName)
   {
-    $directoryPath = "{$modulePath}/Routes";
+    $providerName = "{$moduleName}ServiceProvider";
+    $providerPath = "app/Modules/{$moduleName}/Providers/{$providerName}.php";
+
+    if (!$this->files->exists($providerPath)) {
+      $providerContent = "<?php\n\nnamespace Modules\\{$moduleName}\Providers;\n\nuse Illuminate\Support\ServiceProvider;\n\nclass {$providerName} extends ServiceProvider\n{\n    public function boot(): void\n    {\n        \$this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');\n        \$this->mergeConfigFrom(__DIR__ . '/../config.php', strtolower('{$moduleName}'));\n    }\n}\n";
+      $this->files->put($providerPath, $providerContent);
+      $this->info("ServiceProvider file {$providerPath} created successfully.");
+    } else {
+      $this->info("ServiceProvider file {$providerPath} already exists.");
+    }
+  }
+
+  protected function createRoutesDirectory($moduleName)
+  {
+    $directoryPath = "app/Modules/{$moduleName}/Routes";
     if (!$this->files->exists($directoryPath)) {
       $this->files->makeDirectory($directoryPath, 0755, true);
       $this->info("Directory {$directoryPath} created successfully.");
@@ -147,9 +147,9 @@ class MakeModule extends Command
     }
   }
 
-  protected function createServicesDirectory($modulePath)
+  protected function createServicesDirectory($moduleName)
   {
-    $directoryPath = "{$modulePath}/Services";
+    $directoryPath = "app/Modules/{$moduleName}/Services";
     if (!$this->files->exists($directoryPath)) {
       $this->files->makeDirectory($directoryPath, 0755, true);
       $this->info("Directory {$directoryPath} created successfully.");
