@@ -46,6 +46,7 @@ class MakeModule extends Command
     $this->createControllersDirectory($moduleName);
     $this->createControllerFile($moduleName);
     $this->createRoutesDirectory($moduleName);
+    $this->createRouteFile($moduleName);
 
     $this->info("Module {$moduleName} created successfully.");
   }
@@ -191,6 +192,41 @@ class MakeModule extends Command
       $this->info("Directory {$directoryPath} already exists.");
     }
   }
+
+protected function createRouteFile($moduleName)
+{
+    $routeFileName = "api.php";
+    $modulePath = "app/Modules/{$moduleName}/Routes";
+    $routeFilePath = "{$modulePath}/{$routeFileName}";
+
+    // Ensure the Routes directory exists
+    if (!$this->files->exists($modulePath)) {
+        $this->files->makeDirectory($modulePath, 0755, true);
+        $this->info("Directory {$modulePath} created successfully.");
+    }
+
+    // Check if the route file already exists
+    if (!$this->files->exists($routeFilePath)) {
+        $controllerName = rtrim($moduleName, 's') . 'Controller';
+        $namespace = "Modules\\{$moduleName}\\Controllers\\{$controllerName}";
+
+        // Generate route content using the structure you provided
+        $routeContent = "<?php\n\n";
+        $routeContent .= "use {$namespace};\n\n";
+        $routeContent .= "Route::controller({$controllerName}::class)->group(function () {\n";
+        $routeContent .= "    Route::group(['prefix' => '" . Str::plural(strtolower($moduleName)) . "'], function() {\n";
+        $routeContent .= "        Route::get('/all', 'all');\n";
+        $routeContent .= "    });\n";
+        $routeContent .= "})->middleware('auth:api');\n\n";
+        $routeContent .= "Route::apiResource('" . Str::plural(strtolower($moduleName)) . "', {$controllerName}::class)->middleware('auth:api');\n";
+
+        $this->files->put($routeFilePath, $routeContent);
+        $this->info("Route file {$routeFilePath} created successfully.");
+    } else {
+        $this->info("Route file {$routeFilePath} already exists.");
+    }
+}
+
 
   protected function createServicesDirectory($moduleName)
   {
