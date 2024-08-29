@@ -5,10 +5,11 @@ namespace Jackwander\ModuleMaker\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 
 class MakeModule extends Command
 {
-  protected $signature = 'make:module {name}';
+  protected $signature = 'jw:make-module {name}';
   protected $description = 'Create a new module';
 
   protected $files;
@@ -38,10 +39,12 @@ class MakeModule extends Command
 
     $this->createConfigFile($modulePath);
     $this->createDatabaseDirectory($moduleName);
-    $this->createModelsDirectory($moduleName)
+    $this->createModelsDirectory($moduleName);
     $this->createServicesDirectory($moduleName);
+    $this->createServiceFile($moduleName);
     $this->createServiceProviderFile($moduleName);
     $this->createControllersDirectory($moduleName);
+    $this->createControllerFile($moduleName);
     $this->createRoutesDirectory($moduleName);
 
     $this->info("Module {$moduleName} created successfully.");
@@ -57,6 +60,34 @@ class MakeModule extends Command
       $this->info("Directory {$directoryPath} already exists.");
     }
   }
+
+  protected function createControllerFile($moduleName)
+  {
+      $modulePath = "app/Modules/{$moduleName}/Controllers";
+
+      // Ensure the specific module directory exists
+      if (!$this->files->exists($modulePath)) {
+          $this->files->makeDirectory($modulePath, 0755, true);
+          $this->info("Directory {$modulePath} created successfully.");
+      }
+
+      // Define the controller name by removing the trailing 's' and appending 'Controller'
+      $controllerName = rtrim($moduleName, 's') . 'Controller';
+      $controllerPath = "{$modulePath}/{$controllerName}.php";
+      $variableModel = "$".strtolower($moduleName);
+      $this_variableModel = '$this->'.strtolower($moduleName);
+      $ucmodel = "'".ucwords($moduleName)."'";
+
+      // Check if the controller file already exists
+      if (!$this->files->exists($controllerPath)) {
+          $controllerContent = "<?php\n\nnamespace Modules\\{$moduleName}\\Controllers;\n\nuse Jackwander\ModuleMaker\Resources\BaseApiController;\n\nclass {$controllerName} extends BaseApiController\n{\n  public function __construct(\n    protected {$moduleName}Service {$variableModel},\n  ){\n    parent::__construct({$this_variableModel}, {$ucmodel});\n  }\n}\n";
+          $this->files->put($controllerPath, $controllerContent);
+          $this->info("Controller file {$controllerPath} created successfully.");
+      } else {
+          $this->info("Controller file {$controllerPath} already exists.");
+      }
+  }
+
 
   protected function createDatabaseDirectory($moduleName)
   {
@@ -83,8 +114,7 @@ class MakeModule extends Command
             $this->info("Directory {$folderPath} already exists.");
         }
     }
-
-    $migrationName = 'create_' . strtolower($this->argument('name')) . '_table';
+    $migrationName = 'create_' . strtolower(Str::plural($this->argument('name'))) . '_table';
     $migrationPath = "{$directoryPath}/Migrations";
 
     // Run the make:migration command
@@ -93,7 +123,8 @@ class MakeModule extends Command
         '--path' => $migrationPath,
     ]);
 
-    $this->info("Migration {$migrationName} created successfully in {$migrationPath}.");
+    $migrationFileName = $migrationName . '.php';
+    $this->info("Artisan output: " . Artisan::output());
   }
 
 
@@ -111,10 +142,17 @@ class MakeModule extends Command
 
   protected function createModelFile($directoryPath, $moduleName)
   {
+    $modulePath = "app/Modules/{$moduleName}/Models";
+    // Ensure the specific module directory exists
+    if (!$this->files->exists($modulePath)) {
+        $this->files->makeDirectory($modulePath, 0755, true);
+        $this->info("Directory {$modulePath} created successfully.");
+    }
+
     $modelName = rtrim($moduleName, 's'); // Remove the trailing 's' from the module name for singular model name
-    $modelPath = "{$directoryPath}/{$modelName}.php";
+    $modelPath = "{$modulePath}/{$modelName}.php";
     if (!$this->files->exists($modelPath)) {
-      $modelContent = "<?php\n\nnamespace Modules\\{$moduleName}\Models;\n\nuse Jackwander\ModuleMaker\Resources\Model;\n\nclass {$modelName} extends Model\n{\n    // Model content here\n}\n";
+      $modelContent = "<?php\n\nnamespace Modules\\{$moduleName}\Models;\n\nuse Jackwander\ModuleMaker\Resources\BaseModel;\n\nclass {$modelName} extends BaseModel\n{\n    // Model content here\n}\n";
       $this->files->put($modelPath, $modelContent);
       $this->info("Model file {$modelPath} created successfully.");
     } else {
@@ -125,7 +163,14 @@ class MakeModule extends Command
   protected function createServiceProviderFile($moduleName)
   {
     $providerName = "{$moduleName}ServiceProvider";
+    $modulePath = "app/Modules/{$moduleName}/Providers";
     $providerPath = "app/Modules/{$moduleName}/Providers/{$providerName}.php";
+
+    // Ensure the specific module directory exists
+    if (!$this->files->exists($modulePath)) {
+        $this->files->makeDirectory($modulePath, 0755, true);
+        $this->info("Directory {$modulePath} created successfully.");
+    }
 
     if (!$this->files->exists($providerPath)) {
       $providerContent = "<?php\n\nnamespace Modules\\{$moduleName}\Providers;\n\nuse Illuminate\Support\ServiceProvider;\n\nclass {$providerName} extends ServiceProvider\n{\n    public function boot(): void\n    {\n        \$this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');\n        \$this->mergeConfigFrom(__DIR__ . '/../config.php', strtolower('{$moduleName}'));\n    }\n}\n";
@@ -158,16 +203,49 @@ class MakeModule extends Command
     }
   }
 
+  protected function createServiceFile($moduleName)
+  {
+      $modulePath = "app/Modules/{$moduleName}/Services";
+      $mainmodulePath = "app\Modules\\{$moduleName}";
+
+      // Ensure the specific module directory exists
+      if (!$this->files->exists($modulePath)) {
+          $this->files->makeDirectory($modulePath, 0755, true);
+          $this->info("Directory {$modulePath} created successfully.");
+      }
+
+      // Define the controller name by removing the trailing 's' and appending 'Controller'
+      $serviceFileName = Str::singular($moduleName) . 'Service';
+      $servicePath = "{$modulePath}/{$serviceFileName}.php";
+      $variableModel = "$".strtolower($moduleName);
+      $this_variableModel = '$this->'.strtolower($moduleName);
+
+      // Check if the controller file already exists
+      if (!$this->files->exists($servicePath)) {
+          $serviceContent = "<?php\n\nnamespace Modules\\{$moduleName}\\Services;\n\nuse Jackwander\ModuleMaker\Resources\BaseService;\nuse {$mainmodulePath}\Models\\{$moduleName};\n\nclass {$serviceFileName} extends BaseService\n{\n  public function __construct(\n    protected {$moduleName} {$variableModel},\n  ){\n    parent::__construct({$this_variableModel});\n  }\n}\n";
+          $this->files->put($servicePath, $serviceContent);
+          $this->info("Service file {$servicePath} created successfully.");
+      } else {
+          $this->info("Service file {$servicePath} already exists.");
+      }
+  }
+
 
   protected function createConfigFile($modulePath)
   {
-    $configPath = "{$modulePath}/config.php";
-    if (!$this->files->exists($configPath)) {
-      $configContent = "<?php\n\nreturn [\n\n];\n";
-      $this->files->put($configPath, $configContent);
-      $this->info("File {$configPath} created successfully.");
-    } else {
-      $this->info("File {$configPath} already exists.");
-    }
+      // Ensure the specific module directory exists
+      if (!$this->files->exists($modulePath)) {
+          $this->files->makeDirectory($modulePath, 0755, true);
+          $this->info("Directory {$modulePath} created successfully.");
+      }
+
+      $configPath = "{$modulePath}/config.php";
+      if (!$this->files->exists($configPath)) {
+          $configContent = "<?php\n\nreturn [\n\n];\n";
+          $this->files->put($configPath, $configContent);
+          $this->info("File {$configPath} created successfully.");
+      } else {
+          $this->info("File {$configPath} already exists.");
+      }
   }
 }
