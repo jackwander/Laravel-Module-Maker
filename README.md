@@ -4,6 +4,15 @@ This Custom Module Creator adheres strictly to SDG coding standards and file str
 
 ## Usage
 
-```shel
-php artisan jw:make-module ModuleName
+### Creating a new Module.
+To create a new module, run:
+
+```shell
+php artisan jw:make-module Person
+```
+
+### Creating a New Migration File for a Specific Module
+To create a new migration file for a module, use:
+```shell
+php artisan jw:make-migration insert_status_column --module=Person --table=persons
 ```
