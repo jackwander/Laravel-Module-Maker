@@ -150,10 +150,12 @@ class MakeModule extends Command
         $this->info("Directory {$modulePath} created successfully.");
     }
 
-    $modelName = rtrim($moduleName, 's'); // Remove the trailing 's' from the module name for singular model name
+    $modelName = Str::singular($moduleName); // Remove the trailing 's' from the module name for singular model name
     $modelPath = "{$modulePath}/{$modelName}.php";
+
+    $table_name = '$table = ' . '"'. Str::plural(strtolower($moduleName)) . '"';
     if (!$this->files->exists($modelPath)) {
-      $modelContent = "<?php\n\nnamespace Modules\\{$moduleName}\Models;\n\nuse Jackwander\ModuleMaker\Resources\BaseModel;\n\nclass {$modelName} extends BaseModel\n{\n    // Model content here\n}\n";
+      $modelContent = "<?php\n\nnamespace Modules\\{$moduleName}\Models;\n\nuse Jackwander\ModuleMaker\Resources\BaseModel;\nuse Illuminate\Database\Eloquent\Concerns\HasUuids;\nuse Illuminate\Database\Eloquent\SoftDeletes;\nclass {$modelName} extends BaseModel\n{\n  use SoftDeletes, HasUuids;\n\n  protected {$table_name}\n\n  protected \$fillable = [\n  ];\n\n  protected \$keyType = 'string';\n\n  public \$incrementing = false;\n}\n\n";
       $this->files->put($modelPath, $modelContent);
       $this->info("Model file {$modelPath} created successfully.");
     } else {
@@ -242,7 +244,7 @@ protected function createRouteFile($moduleName)
   protected function createServiceFile($moduleName)
   {
       $modulePath = "app/Modules/{$moduleName}/Services";
-      $mainmodulePath = "app\Modules\\{$moduleName}";
+      $mainmodulePath = "Modules\\{$moduleName}";
 
       // Ensure the specific module directory exists
       if (!$this->files->exists($modulePath)) {
