@@ -119,9 +119,10 @@ class MakeModule extends Command
     $migrationPath = "{$directoryPath}/Migrations";
 
     // Run the make:migration command
-    Artisan::call('make:migration', [
+    Artisan::call('jw:make-migration', [
         'name' => $migrationName,
-        '--path' => $migrationPath,
+        '--module' => $moduleName,
+        '--create' => Str::snake(Str::plural($this->argument('name')))
     ]);
 
     $migrationFileName = $migrationName . '.php';
