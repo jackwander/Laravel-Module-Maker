@@ -1,7 +1,8 @@
-## 1.0.3 - August 31, 2024 (Saturday)
+## 1.0.3, 1.0.4 - August 31, 2024 (Saturday)
 
-### Fix
+### Fixes
 - Fix Migration --table flag.
+- Update Migration spacing and comments.
 
 ## 1.0.2 - August 31, 2024 (Saturday)
 
