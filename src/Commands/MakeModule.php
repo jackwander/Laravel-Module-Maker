@@ -81,7 +81,7 @@ class MakeModule extends Command
 
       // Check if the controller file already exists
       if (!$this->files->exists($controllerPath)) {
-          $controllerContent = "<?php\n\nnamespace Modules\\{$moduleName}\\Controllers;\n\nuse Jackwander\ModuleMaker\Resources\BaseApiController;\n\nclass {$controllerName} extends BaseApiController\n{\n  public function __construct(\n    protected {$moduleName}Service {$variableModel},\n  ){\n    parent::__construct({$this_variableModel}, {$ucmodel});\n  }\n}\n";
+          $controllerContent = "<?php\n\nnamespace Modules\\{$moduleName}\\Controllers;\n\nuse Jackwander\ModuleMaker\Resources\BaseApiController;\nuse Modules\\{$moduleName}\\Services\\{$moduleName};\nclass {$controllerName} extends BaseApiController\n{\n  public function __construct(\n    protected {$moduleName}Service {$variableModel},\n  ){\n    parent::__construct({$this_variableModel}, {$ucmodel});\n  }\n}\n";
           $this->files->put($controllerPath, $controllerContent);
           $this->info("Controller file {$controllerPath} created successfully.");
       } else {
@@ -156,7 +156,7 @@ class MakeModule extends Command
 
     $table_name = '$table = ' . '"'. Str::plural(strtolower($moduleName)) . '"';
     if (!$this->files->exists($modelPath)) {
-      $modelContent = "<?php\n\nnamespace Modules\\{$moduleName}\Models;\n\nuse Jackwander\ModuleMaker\Resources\BaseModel;\nuse Illuminate\Database\Eloquent\Concerns\HasUuids;\nuse Illuminate\Database\Eloquent\SoftDeletes;\nclass {$modelName} extends BaseModel\n{\n  use SoftDeletes, HasUuids;\n\n  protected {$table_name}\n\n  protected \$fillable = [\n  ];\n\n  protected \$keyType = 'string';\n\n  public \$incrementing = false;\n}\n\n";
+      $modelContent = "<?php\n\nnamespace Modules\\{$moduleName}\Models;\n\nuse Jackwander\ModuleMaker\Resources\BaseModel;\nuse Illuminate\Database\Eloquent\Concerns\HasUuids;\nuse Illuminate\Database\Eloquent\SoftDeletes;\nclass {$modelName} extends BaseModel\n{\n  use SoftDeletes, HasUuids;\n\n  protected {$table_name};\n\n  protected \$fillable = [\n  ];\n\n  protected \$keyType = 'string';\n\n  public \$incrementing = false;\n}\n\n";
       $this->files->put($modelPath, $modelContent);
       $this->info("Model file {$modelPath} created successfully.");
     } else {
