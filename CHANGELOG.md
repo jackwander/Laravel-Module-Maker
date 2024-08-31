@@ -1,6 +1,11 @@
+## 1.0.3 - August 31, 2024 (Saturday)
+
+### Fix
+- Fix Migration --table flag.
+
 ## 1.0.2 - August 31, 2024 (Saturday)
 
-## Fix
+###  Fix
 - Fix Migration, Model, Controller dependency.
 
 ## 1.0.1 - August 30, 2024 (Friday)
