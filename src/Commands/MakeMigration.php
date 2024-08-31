@@ -57,11 +57,11 @@ class MakeMigration extends Command
 
     protected function getCreateMigrationContent($migrationName, $tableName)
     {
-        return "<?php\n\nuse Illuminate\\Database\\Migrations\\Migration;\nuse Illuminate\\Database\\Schema\\Blueprint;\nuse Illuminate\\Support\\Facades\\Schema;\n\return new class extends Migration\n{\n    public function up(): void\n    {\n        Schema::create('{$tableName}', function (Blueprint \$table) {\n            \$table->uuid('id')->primary();\n            // Add columns here\n            \$table->timestamps();\n            \$table->softDeletes();\n        });\n    }\n\n    public function down(): void\n    {\n        Schema::dropIfExists('{$tableName}');\n    }\n};\n";
+        return "<?php\n\nuse Illuminate\\Database\\Migrations\\Migration;\nuse Illuminate\\Database\\Schema\\Blueprint;\nuse Illuminate\\Support\\Facades\\Schema;\n\\return new class extends Migration\n{\n    public function up(): void\n    {\n        Schema::create('{$tableName}', function (Blueprint \$table) {\n            \$table->uuid('id')->primary();\n            // Add columns here\n            \$table->timestamps();\n            \$table->softDeletes();\n        });\n    }\n\n    public function down(): void\n    {\n        Schema::dropIfExists('{$tableName}');\n    }\n};\n";
     }
 
     protected function getTableMigrationContent($migrationName, $tableName)
     {
-        return "<?php\n\nuse Illuminate\\Database\\Migrations\\Migration;\nuse Illuminate\\Database\\Schema\\Blueprint;\nuse Illuminate\\Support\\Facades\\Schema;\n\return new class extends Migration\n{\n    public function up()\n    {\n        Schema::table('{$tableName}', function (Blueprint \$table) {\n            // Add columns or modify existing columns\n        });\n    }\n\n    public function down()\n    {\n        Schema::table('{$tableName}', function (Blueprint \$table) {\n            // Revert changes made in up()\n        });\n    }\n};\n";
+        return "<?php\n\nuse Illuminate\\Database\\Migrations\\Migration;\nuse Illuminate\\Database\\Schema\\Blueprint;\nuse Illuminate\\Support\\Facades\\Schema;\n\\return new class extends Migration\n{\n    public function up()\n    {\n        Schema::table('{$tableName}', function (Blueprint \$table) {\n            // Add columns or modify existing columns\n        });\n    }\n\n    public function down()\n    {\n        Schema::table('{$tableName}', function (Blueprint \$table) {\n            // Revert changes made in up()\n        });\n    }\n};\n";
     }
 }
