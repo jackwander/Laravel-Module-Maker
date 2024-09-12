@@ -1,3 +1,11 @@
+## 1.0.5 - September 13, 2024 (Friday)
+
+### Fixes
+- Fix new line spaces.
+
+### Added
+- Make Controller, Model, Service command.
+
 ## 1.0.3, 1.0.4 - August 31, 2024 (Saturday)
 
 ### Fixes

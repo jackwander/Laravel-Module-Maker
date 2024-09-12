@@ -1,6 +1,6 @@
 {
     "name": "jackwander/laravel-module-maker",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "license": "MIT",
     "description": "Laravel Custom module maker for SDG",
     "type": "library",

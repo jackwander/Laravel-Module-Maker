@@ -73,15 +73,16 @@ class MakeModule extends Command
       }
 
       // Define the controller name by removing the trailing 's' and appending 'Controller'
-      $controllerName = rtrim($moduleName, 's') . 'Controller';
+      $controllerName = Str::plural($moduleName) . 'Controller';
       $controllerPath = "{$modulePath}/{$controllerName}.php";
       $variableModel = "$".strtolower($moduleName);
       $this_variableModel = '$this->'.strtolower($moduleName);
       $ucmodel = "'".ucwords($moduleName)."'";
+      $serviceName = Str::singular($moduleName).'Service';
 
       // Check if the controller file already exists
       if (!$this->files->exists($controllerPath)) {
-          $controllerContent = "<?php\n\nnamespace Modules\\{$moduleName}\\Controllers;\n\nuse Jackwander\ModuleMaker\Resources\BaseApiController;\nuse Modules\\{$moduleName}\\Services\\{$moduleName};\nclass {$controllerName} extends BaseApiController\n{\n  public function __construct(\n    protected {$moduleName}Service {$variableModel},\n  ){\n    parent::__construct({$this_variableModel}, {$ucmodel});\n  }\n}\n";
+          $controllerContent = "<?php\n\nnamespace Modules\\{$moduleName}\\Controllers;\n\nuse Jackwander\ModuleMaker\Resources\BaseApiController;\nuse Modules\\{$moduleName}\\Services\\{$serviceName};\n\nclass {$controllerName} extends BaseApiController\n{\n  public function __construct(\n    protected {$serviceName} {$variableModel},\n  ){\n    parent::__construct({$this_variableModel}, {$ucmodel});\n  }\n}\n";
           $this->files->put($controllerPath, $controllerContent);
           $this->info("Controller file {$controllerPath} created successfully.");
       } else {
@@ -156,7 +157,7 @@ class MakeModule extends Command
 
     $table_name = '$table = ' . '"'. Str::plural(strtolower($moduleName)) . '"';
     if (!$this->files->exists($modelPath)) {
-      $modelContent = "<?php\n\nnamespace Modules\\{$moduleName}\Models;\n\nuse Jackwander\ModuleMaker\Resources\BaseModel;\nuse Illuminate\Database\Eloquent\Concerns\HasUuids;\nuse Illuminate\Database\Eloquent\SoftDeletes;\nclass {$modelName} extends BaseModel\n{\n  use SoftDeletes, HasUuids;\n\n  protected {$table_name};\n\n  protected \$fillable = [\n  ];\n\n  protected \$keyType = 'string';\n\n  public \$incrementing = false;\n}\n\n";
+      $modelContent = "<?php\n\nnamespace Modules\\{$moduleName}\Models;\n\nuse Jackwander\ModuleMaker\Resources\BaseModel;\nuse Illuminate\Database\Eloquent\Concerns\HasUuids;\nuse Illuminate\Database\Eloquent\SoftDeletes;\n\nclass {$modelName} extends BaseModel\n{\n  use SoftDeletes, HasUuids;\n\n  protected {$table_name};\n\n  protected \$fillable = [\n  ];\n\n  protected \$keyType = 'string';\n\n  public \$incrementing = false;\n}\n\n";
       $this->files->put($modelPath, $modelContent);
       $this->info("Model file {$modelPath} created successfully.");
     } else {
@@ -210,7 +211,7 @@ protected function createRouteFile($moduleName)
 
     // Check if the route file already exists
     if (!$this->files->exists($routeFilePath)) {
-        $controllerName = rtrim($moduleName, 's') . 'Controller';
+        $controllerName = Str::plural($moduleName). 'Controller';
         $namespace = "Modules\\{$moduleName}\\Controllers\\{$controllerName}";
 
         // Generate route content using the structure you provided
@@ -258,10 +259,11 @@ protected function createRouteFile($moduleName)
       $servicePath = "{$modulePath}/{$serviceFileName}.php";
       $variableModel = "$".strtolower($moduleName);
       $this_variableModel = '$this->'.strtolower($moduleName);
+      $modelName = Str::singular($moduleName);
 
       // Check if the controller file already exists
       if (!$this->files->exists($servicePath)) {
-          $serviceContent = "<?php\n\nnamespace Modules\\{$moduleName}\\Services;\n\nuse Jackwander\ModuleMaker\Resources\BaseService;\nuse {$mainmodulePath}\Models\\{$moduleName};\n\nclass {$serviceFileName} extends BaseService\n{\n  public function __construct(\n    protected {$moduleName} {$variableModel},\n  ){\n    parent::__construct({$this_variableModel});\n  }\n}\n";
+          $serviceContent = "<?php\n\nnamespace Modules\\{$moduleName}\\Services;\n\nuse Jackwander\ModuleMaker\Resources\BaseService;\nuse {$mainmodulePath}\Models\\{$modelName};\n\nclass {$serviceFileName} extends BaseService\n{\n  public function __construct(\n    protected {$modelName} {$variableModel},\n  ){\n    parent::__construct({$this_variableModel});\n  }\n}\n";
           $this->files->put($servicePath, $serviceContent);
           $this->info("Service file {$servicePath} created successfully.");
       } else {
