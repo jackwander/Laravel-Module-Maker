@@ -42,6 +42,7 @@ class MakeModel extends Command
 
   protected function createModelFile($moduleName, $modelName)
   {
+    $directoryPath = "app/Modules/{$moduleName}";
     $modulePath = "app/Modules/{$moduleName}/Models";
     // Ensure the specific module directory exists
     if (!$this->files->exists($modulePath)) {
