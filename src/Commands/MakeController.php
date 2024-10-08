@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 
-class MakeMigration extends Command
+class MakeController extends Command
 {
     protected $signature = 'jw:make-controller {name} {--module=}';
     protected $description = 'Create a new Controller file for a specific module';

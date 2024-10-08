@@ -6,10 +6,10 @@ use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 
-class MakeMigration extends Command
+class MakeService extends Command
 {
-    protected $signature = 'jw:make-controller {name} {--module=}';
-    protected $description = 'Create a new Controller file for a specific module';
+    protected $signature = 'jw:make-service {name} {--module=}';
+    protected $description = 'Create a new Service file for a specific module';
 
     protected $files;
 
@@ -50,7 +50,7 @@ class MakeMigration extends Command
           $this->info("Directory {$modulePath} created successfully.");
       }
 
-      // Define the controller name by removing the trailing 's' and appending 'Controller'
+      // Define the controller name by removing the trailing 's' and appending 'Service'
       $serviceFileName = Str::singular($model) . 'Service';
       $servicePath = "{$modulePath}/{$serviceFileName}.php";
       $variableModel = "$".strtolower($model);

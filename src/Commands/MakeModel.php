@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 
-class MakeMigration extends Command
+class MakeModel extends Command
 {
     protected $signature = 'jw:make-model {name} {--module=}';
     protected $description = 'Create a new model file for a specific module';
