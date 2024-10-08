@@ -66,20 +66,6 @@ class MakeModel extends Command
         '--create' => Str::snake(Str::plural(strtolower($modelName)))
     ]);
 
-    // Run the make:controller command
-    Artisan::call('jw:make-controller', [
-        'name' => $modelName,
-        '--module' => $moduleName,
-        '--create' => Str::snake(Str::plural(strtolower($modelName)))
-    ]);
-
-    // Run the make:controller command
-    Artisan::call('jw:make-service', [
-        'name' => $modelName,
-        '--module' => $moduleName,
-        '--create' => Str::snake(Str::plural(strtolower($modelName)))
-    ]);
-
     if (!$this->files->exists($modelPath)) {
       $modelContent = "<?php\n\nnamespace Modules\\{$moduleName}\Models;\n\nuse Jackwander\ModuleMaker\Resources\BaseModel;\nuse Illuminate\Database\Eloquent\Concerns\HasUuids;\nuse Illuminate\Database\Eloquent\SoftDeletes;\n\nclass {$modelName} extends BaseModel\n{\n  use SoftDeletes, HasUuids;\n\n  protected {$table_name};\n\n  protected \$fillable = [\n  ];\n\n  protected \$keyType = 'string';\n\n  public \$incrementing = false;\n}\n\n";
       $this->files->put($modelPath, $modelContent);
