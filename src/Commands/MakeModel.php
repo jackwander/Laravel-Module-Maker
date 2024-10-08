@@ -4,6 +4,7 @@ namespace Jackwander\ModuleMaker\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 
 class MakeModel extends Command

@@ -1,3 +1,11 @@
+## 1.0.6 - 1.0.8 - October 09, 2024 (Wednesday)
+
+### Fixes
+- Fix missing variables
+
+### Added
+- Make available Controller, Model, Service command.
+
 ## 1.0.5 - September 13, 2024 (Friday)
 
 ### Fixes
