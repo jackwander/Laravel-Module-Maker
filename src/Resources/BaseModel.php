@@ -4,11 +4,10 @@ namespace Jackwander\ModuleMaker\Resources;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 class BaseModel extends Model
 {
-    use SoftDeletes, HasUuids;
+    use HasUuids;
     protected $hidden = ['created_at','updated_at','deleted_at'];
 
     public function scopeWithHas($query, $relation, $constraint){

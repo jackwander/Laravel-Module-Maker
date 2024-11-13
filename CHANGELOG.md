@@ -1,7 +1,11 @@
-## 1.0.6 - 1.0.8 - October 09, 2024 (Wednesday)
+## 1.1.0 - November 13, 2024 (Wednesday)
+- Don't use default SoftDelete.
+
+## 1.0.6 - 1.0.9 - October 09, 2024 (Wednesday)
 
 ### Fixes
 - Fix missing variables
+- Remove other artisan command.
 
 ### Added
 - Make available Controller, Model, Service command.
