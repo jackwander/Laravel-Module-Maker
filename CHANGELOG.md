@@ -1,5 +1,7 @@
-## 1.1.1 - April 16, 2025 (Wednesday)
+
+## 1.1.1, 1.1.2 - April 16, 2025 (Wednesday)
 - Remove Illuminate Requirement.
+- Add findForPassport.
 
 ## 1.1.0 - November 13, 2024 (Wednesday)
 - Don't use default SoftDelete.

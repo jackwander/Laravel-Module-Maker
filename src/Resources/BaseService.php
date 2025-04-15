@@ -94,6 +94,13 @@ class BaseService{
     return $this->entity->where($column,$value)->first();
   }
 
+  public function findForPassport($input)
+  {
+    return $this->user
+      ->where('email', $input)
+      ->orWhere('username', $input)
+      ->first();
+  }
 
   public function update(array $data, $identifier)
   {
