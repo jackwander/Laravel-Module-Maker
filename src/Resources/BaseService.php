@@ -96,7 +96,7 @@ class BaseService{
 
   public function findForPassport($input)
   {
-    return $this->user
+    return $this->entity
       ->where('email', $input)
       ->orWhere('username', $input)
       ->first();

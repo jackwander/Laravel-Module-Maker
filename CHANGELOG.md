@@ -1,5 +1,5 @@
 
-## 1.1.1, 1.1.2 - April 16, 2025 (Wednesday)
+## 1.1.1, 1.1.3 - April 16, 2025 (Wednesday)
 - Remove Illuminate Requirement.
 - Add findForPassport.
 
