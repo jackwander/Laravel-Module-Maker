@@ -1,4 +1,4 @@
-## 2.0.0 - February 05, 2026 (Thursday)
+## 2.0.2 - February 05, 2026 (Thursday)
 
 ### Zero-Config Milestone
 This major release introduces a "plug-and-play" architecture. By migrating to the `App\Modules` namespace, I have eliminated the requirement for manual `composer.json` edits and achieved 100% PSR-4 compliance out of the box.
