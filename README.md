@@ -4,8 +4,6 @@ This package provides a robust, modular architecture for Laravel applications. D
 
 > **🚀 Zero-Config:** As of v2.0.0, this package automatically handles PSR-4 autoloading, Service Provider registration, and API route discovery. No manual `composer.json` or `app.php` edits are required.
 
-[Image of Laravel PSR-4 namespace to directory mapping structure]
-
 ---
 
 ## Usage
