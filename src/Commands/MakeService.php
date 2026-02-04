@@ -53,8 +53,8 @@ class MakeService extends Command
       // Define the controller name by removing the trailing 's' and appending 'Service'
       $serviceFileName = Str::singular($model) . 'Service';
       $servicePath = "{$modulePath}/{$serviceFileName}.php";
-      $variableModel = "$".strtolower($model);
-      $this_variableModel = '$this->'.strtolower($model);
+      $variableModel = "$".strtolower(Str::snake($model));
+      $this_variableModel = '$this->'.strtolower(Str::snake($model));
       $modelName = Str::singular($model);
 
       // Check if the controller file already exists

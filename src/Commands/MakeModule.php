@@ -75,8 +75,8 @@ class MakeModule extends Command
       // Define the controller name by removing the trailing 's' and appending 'Controller'
       $controllerName = Str::plural($moduleName) . 'Controller';
       $controllerPath = "{$modulePath}/{$controllerName}.php";
-      $variableModel = "$".strtolower($moduleName);
-      $this_variableModel = '$this->'.strtolower($moduleName);
+      $variableModel = "$".strtolower(Str::snake($moduleName));
+      $this_variableModel = '$this->'.strtolower(Str::snake($moduleName));
       $ucmodel = "'".ucwords($moduleName)."'";
       $serviceName = Str::singular($moduleName).'Service';
 
@@ -116,7 +116,7 @@ class MakeModule extends Command
             $this->info("Directory {$folderPath} already exists.");
         }
     }
-    $migrationName = 'create_' . strtolower(Str::plural($this->argument('name'))) . '_table';
+    $migrationName = 'create_' . strtolower(Str::plural(Str::snake($this->argument('name')))) . '_table';
     $migrationPath = "{$directoryPath}/Migrations";
 
     // Run the make:migration command
@@ -155,7 +155,8 @@ class MakeModule extends Command
     $modelName = Str::singular($moduleName); // Remove the trailing 's' from the module name for singular model name
     $modelPath = "{$modulePath}/{$modelName}.php";
 
-    $table_name = '$table = ' . '"'. Str::plural(strtolower($moduleName)) . '"';
+    $table_name = '$table = ' . '"'. strtolower(Str::plural(Str::snake($moduleName))) . '"';
+
     if (!$this->files->exists($modelPath)) {
       $modelContent = "<?php\n\nnamespace Modules\\{$moduleName}\Models;\n\nuse Jackwander\ModuleMaker\Resources\BaseModel;\nuse Illuminate\Database\Eloquent\Concerns\HasUuids;\nuse Illuminate\Database\Eloquent\SoftDeletes;\n\nclass {$modelName} extends BaseModel\n{\n  use SoftDeletes, HasUuids;\n\n  protected {$table_name};\n\n  protected \$fillable = [\n  ];\n\n  protected \$keyType = 'string';\n\n  public \$incrementing = false;\n}\n\n";
       $this->files->put($modelPath, $modelContent);
@@ -257,8 +258,8 @@ protected function createRouteFile($moduleName)
       // Define the controller name by removing the trailing 's' and appending 'Controller'
       $serviceFileName = Str::singular($moduleName) . 'Service';
       $servicePath = "{$modulePath}/{$serviceFileName}.php";
-      $variableModel = "$".strtolower($moduleName);
-      $this_variableModel = '$this->'.strtolower($moduleName);
+      $variableModel = "$".strtolower(Str::snake($moduleName));
+      $this_variableModel = '$this->'.strtolower(Str::snake($moduleName));
       $modelName = Str::singular($moduleName);
 
       // Check if the controller file already exists

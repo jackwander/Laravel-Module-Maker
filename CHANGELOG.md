@@ -1,3 +1,10 @@
+## 1.2 - February 05, 2026 (Thursday)
+### Added
+- New flags for `jw:make-model` command: `--service` (`-s`) and `--controller` (`-c`) to automate boilerplate generation.
+- Support for `--all` (`-a`) flag to generate Model, Migration, Service, and Controller in one command.
+
+### Fixed
+- Resolved an issue where model variables were incorrectly formatted; now strictly using **snake_case** for database compatibility.
 
 ## 1.1.1, 1.1.3 - April 16, 2025 (Wednesday)
 - Remove Illuminate Requirement.

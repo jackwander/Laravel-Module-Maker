@@ -9,7 +9,11 @@ use Illuminate\Support\Str;
 
 class MakeModel extends Command
 {
-    protected $signature = 'jw:make-model {name} {--module=}';
+    protected $signature = 'jw:make-model {name} {--module=}
+                    {--s|service : Create a new service for the module}
+                    {--c|controller : Create a new controller for the module}
+                    {--a|all : Generate a migration, service, and controller}
+                    ';
     protected $description = 'Create a new model file for a specific module';
 
     protected $files;
@@ -37,6 +41,24 @@ class MakeModel extends Command
         }
 
         $this->createModelFile($moduleName, $modelName);
+
+        // Check for flags
+        $all = $this->option('all');
+
+        if ($all || $this->option('controller')) {
+            Artisan::call('jw:make-controller', [
+                'name' => $modelName,
+                '--module' => $moduleName,
+            ]);
+        }
+
+        if ($all || $this->option('service')) {
+            Artisan::call('jw:make-service', [
+                'name' => $modelName,
+                '--module' => $moduleName,
+            ]);
+        }
+
         $this->info("Model {$modelName} created successfully.");
     }
 
@@ -54,16 +76,14 @@ class MakeModel extends Command
     $modelName = Str::singular($modelName); // Remove the trailing 's' from the module name for singular model name
     $modelPath = "{$modulePath}/{$modelName}.php";
 
-    $migrationName = 'create_' . strtolower(Str::plural($this->argument('name'))) . '_table';
-    $migrationPath = "{$directoryPath}/Migrations";
-
-    $table_name = '$table = ' . '"'. Str::snake(Str::plural(strtolower($modelName))) . '"';
+    $migrationName = 'create_' . strtolower(Str::plural(Str::snake($this->argument('name')))) . '_table';
+    $table_name = '$table = ' . '"'. strtolower(Str::plural(Str::snake($this->argument('name')))) . '"';
 
     // Run the make:migration command
     Artisan::call('jw:make-migration', [
         'name' => $migrationName,
         '--module' => $moduleName,
-        '--create' => Str::snake(Str::plural(strtolower($modelName)))
+        '--create' => Str::plural(strtolower(Str::snake($modelName)))
     ]);
 
     if (!$this->files->exists($modelPath)) {

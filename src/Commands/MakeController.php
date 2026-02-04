@@ -53,8 +53,8 @@ class MakeController extends Command
       // Define the controller name by removing the trailing 's' and appending 'Controller'
       $controllerName = Str::plural($model) . 'Controller';
       $controllerPath = "{$modulePath}/{$controllerName}.php";
-      $variableModel = "$".strtolower($model);
-      $this_variableModel = '$this->'.strtolower($model);
+      $variableModel = "$".strtolower(Str::snake($model));
+      $this_variableModel = '$this->'.strtolower(Str::snake($model));
       $ucmodel = "'".ucwords($model)."'";
       $serviceName = Str::singular($model).'Service';
 
