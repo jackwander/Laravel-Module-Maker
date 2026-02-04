@@ -71,3 +71,12 @@ app/Modules/
     └── Routes/
         └── api.php          # Module API Routes (Prefix: api/v1/person)
 ```
+
+## Requirements
+
+| Requirement | Supported Versions |
+| :--- | :--- |
+| **PHP** | `^8.2` |
+| **Laravel** | `^11.0` |
+
+---

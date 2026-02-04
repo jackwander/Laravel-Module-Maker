@@ -1,14 +1,9 @@
 {
     "name": "jackwander/laravel-module-maker",
     "version": "2.0.0",
-    "license": "MIT",
-    "description": "Laravel Module Maker",
+    "description": "A zero-config custom module creator for Laravel 11 projects.",
     "type": "library",
-    "autoload": {
-        "psr-4": {
-            "Jackwander\\ModuleMaker\\": "src/"
-        }
-    },
+    "license": "MIT",
     "authors": [
         {
             "name": "Jerwin",
@@ -16,7 +11,15 @@
         }
     ],
     "require": {
-        "php": "^8.2"
+        "php": "^8.2",
+        "illuminate/support": "^11.0",
+        "illuminate/console": "^11.0",
+        "illuminate/filesystem": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Jackwander\\ModuleMaker\\": "src/"
+        }
     },
     "extra": {
         "laravel": {
@@ -24,5 +27,7 @@
                 "Jackwander\\ModuleMaker\\ModuleServiceProvider"
             ]
         }
-    }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }
