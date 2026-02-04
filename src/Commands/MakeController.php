@@ -60,7 +60,7 @@ class MakeController extends Command
 
       // Check if the controller file already exists
       if (!$this->files->exists($controllerPath)) {
-          $controllerContent = "<?php\n\nnamespace Modules\\{$moduleName}\\Controllers;\n\nuse Jackwander\ModuleMaker\Resources\BaseApiController;\nuse Modules\\{$moduleName}\\Services\\{$serviceName};\n\nclass {$controllerName} extends BaseApiController\n{\n  public function __construct(\n    protected {$serviceName} {$variableModel},\n  ){\n    parent::__construct({$this_variableModel}, {$ucmodel});\n  }\n}\n";
+          $controllerContent = "<?php\n\nnamespace App\\Modules\\{$moduleName}\\Controllers;\n\nuse Jackwander\ModuleMaker\Resources\BaseApiController;\nuse Modules\\{$moduleName}\\Services\\{$serviceName};\n\nclass {$controllerName} extends BaseApiController\n{\n  public function __construct(\n    protected {$serviceName} {$variableModel},\n  ){\n    parent::__construct({$this_variableModel}, {$ucmodel});\n  }\n}\n";
           $this->files->put($controllerPath, $controllerContent);
           $this->info("Controller file {$controllerPath} created successfully.");
       } else {

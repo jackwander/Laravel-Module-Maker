@@ -11,6 +11,7 @@ class MakeModel extends Command
 {
     protected $signature = 'jw:make-model {name} {--module=}
                     {--s|service : Create a new service for the module}
+                    {--m|migration : Create a new migration for the module}
                     {--c|controller : Create a new controller for the module}
                     {--a|all : Generate a migration, service, and controller}
                     ';
@@ -59,6 +60,10 @@ class MakeModel extends Command
             ]);
         }
 
+        if ($all || $this->option('migration')) {
+          $this->createMigrationFile($moduleName, $modelName);
+        }
+
         $this->info("Model {$modelName} created successfully.");
     }
 
@@ -76,22 +81,27 @@ class MakeModel extends Command
     $modelName = Str::singular($modelName); // Remove the trailing 's' from the module name for singular model name
     $modelPath = "{$modulePath}/{$modelName}.php";
 
-    $migrationName = 'create_' . strtolower(Str::plural(Str::snake($this->argument('name')))) . '_table';
     $table_name = '$table = ' . '"'. strtolower(Str::plural(Str::snake($this->argument('name')))) . '"';
 
+
+
+    if (!$this->files->exists($modelPath)) {
+      $modelContent = "<?php\n\nnamespace App\\Modules\\{$moduleName}\Models;\n\nuse Jackwander\ModuleMaker\Resources\BaseModel;\nuse Illuminate\Database\Eloquent\Concerns\HasUuids;\nuse Illuminate\Database\Eloquent\SoftDeletes;\n\nclass {$modelName} extends BaseModel\n{\n  use SoftDeletes, HasUuids;\n\n  protected {$table_name};\n\n  protected \$fillable = [\n  ];\n\n  protected \$keyType = 'string';\n\n  public \$incrementing = false;\n}\n\n";
+      $this->files->put($modelPath, $modelContent);
+      $this->info("Model file {$modelPath} created successfully.");
+    } else {
+      $this->info("Model file {$modelPath} already exists.");
+    }
+  }
+
+  protected function createMigrationFile($moduleName, $modelName)
+  {
+    $migrationName = 'create_' . strtolower(Str::plural(Str::snake($this->argument('name')))) . '_table';
     // Run the make:migration command
     Artisan::call('jw:make-migration', [
         'name' => $migrationName,
         '--module' => $moduleName,
         '--create' => Str::plural(strtolower(Str::snake($modelName)))
     ]);
-
-    if (!$this->files->exists($modelPath)) {
-      $modelContent = "<?php\n\nnamespace Modules\\{$moduleName}\Models;\n\nuse Jackwander\ModuleMaker\Resources\BaseModel;\nuse Illuminate\Database\Eloquent\Concerns\HasUuids;\nuse Illuminate\Database\Eloquent\SoftDeletes;\n\nclass {$modelName} extends BaseModel\n{\n  use SoftDeletes, HasUuids;\n\n  protected {$table_name};\n\n  protected \$fillable = [\n  ];\n\n  protected \$keyType = 'string';\n\n  public \$incrementing = false;\n}\n\n";
-      $this->files->put($modelPath, $modelContent);
-      $this->info("Model file {$modelPath} created successfully.");
-    } else {
-      $this->info("Model file {$modelPath} already exists.");
-    }
   }
 }

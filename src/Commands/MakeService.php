@@ -59,7 +59,7 @@ class MakeService extends Command
 
       // Check if the controller file already exists
       if (!$this->files->exists($servicePath)) {
-          $serviceContent = "<?php\n\nnamespace Modules\\{$moduleName}\\Services;\n\nuse Jackwander\ModuleMaker\Resources\BaseService;\nuse {$mainmodulePath}\Models\\{$modelName};\n\nclass {$serviceFileName} extends BaseService\n{\n  public function __construct(\n    protected {$modelName} {$variableModel},\n  ){\n    parent::__construct({$this_variableModel});\n  }\n}\n";
+          $serviceContent = "<?php\n\nnamespace App\\Modules\\{$moduleName}\\Services;\n\nuse Jackwander\ModuleMaker\Resources\BaseService;\nuse {$mainmodulePath}\Models\\{$modelName};\n\nclass {$serviceFileName} extends BaseService\n{\n  public function __construct(\n    protected {$modelName} {$variableModel},\n  ){\n    parent::__construct({$this_variableModel});\n  }\n}\n";
           $this->files->put($servicePath, $serviceContent);
           $this->info("Service file {$servicePath} created successfully.");
       } else {

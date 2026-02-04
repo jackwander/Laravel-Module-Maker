@@ -1,3 +1,32 @@
+## 2.0.0 - February 05, 2026 (Thursday)
+
+### 🚀 Zero-Config Milestone
+This major release introduces a "plug-and-play" architecture. By migrating to the `App\Modules` namespace, I have eliminated the requirement for manual `composer.json` edits and achieved 100% PSR-4 compliance out of the box.
+
+### ➕ Added
+- **Zero-Config Autoloading**: All modules now reside under the `App\Modules` namespace, leveraging Laravel's native autoloader for a seamless installation experience.
+- **Enhanced Model Maker**: The `jw:make-model` command now supports the following flags for rapid boilerplate generation:
+    - `-s` | `--service` : Generate a Service class.
+    - `-m` | `--migration` : Generate a migration file for the model.
+    - `-c` | `--controller` : Generate a Controller and Routes.
+    - `-a` | `--all` : Generate the full stack (Model, Migration, Service, and Controller).
+- **Health Check Command**: Introduced `php artisan jw:check` to verify directory existence, namespace mapping, and module loading status.
+- **Dynamic Discovery**: Automatic detection and registration of Service Providers and API routes for any module located in `app/Modules`.
+
+### 🔄 Changed (Breaking Changes)
+- **Namespace Refactor**: All generated classes (Models, Controllers, Services, Providers) now use the `App\Modules\{ModuleName}` prefix instead of the previous `Modules` root.
+- **Path Resolution**: Standardized internal path handling using `app_path()` and `basename()` to ensure full compatibility across Windows and Linux environments.
+
+### 🐛 Fixed
+- **PSR-4 Compliance**: Resolved "does not comply with PSR-4" warnings previously seen during `composer dump-autoload` by nesting modules within the project's native `App\` namespace.
+- **Naming Conventions**: Fixed an issue where stub variables were not consistently following `snake_case` in generated templates.
+
+---
+
+**2.0.0**: https://github.com/jackwander/Laravel-Module-Maker/compare/v1.2...v2.0.0
+
+---
+
 ## 1.2 - February 05, 2026 (Thursday)
 ### Added
 - New flags for `jw:make-model` command: `--service` (`-s`) and `--controller` (`-c`) to automate boilerplate generation.
