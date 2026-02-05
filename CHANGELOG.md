@@ -1,3 +1,27 @@
+## 2.1.0 - February 05, 2026 (Thursday)
+### Added
+* **Configurable Inheritance**: Introduced config/module-maker.php allowing developers to define custom base classes for Models, Services, and Controllers.
+* **Vendor Publishing**: Added support for php artisan vendor:publish to export package configuration.
+* **Bridge Architecture Support**: Updated the generator engine to support intermediate "App Core" layers, preventing the need to modify vendor/ files.
+
+### Changed
+* **Refactored Generators**: jw:make-model, jw:make-service, and jw:make-controller now dynamically resolve parent classes from the configuration file.
+* **Code Generation Engine**: Switched to Heredoc syntax for all PHP file generation, resulting in cleaner, better-formatted generated code.
+* **Namespace Standardization**: All generated stubs now strictly adhere to the App\Modules namespace introduced in v2.0.0.
+
+### Fixed
+* **Path Resolution**: Fixed a "File not found" error during vendor publishing by correctly resolving the root directory using dirname(__DIR__).
+* **Namespace Collisions**: Fixed an issue where the generator would occasionally use Modules\ instead of App\Modules\.
+
+---
+### Implementation Note for `v2.1.0`
+If you are upgrading from `v2.0.0`, you must publish the new configuration file to take advantage of the custom base class features:
+
+```script
+php artisan vendor:publish --provider="Jackwander\ModuleMaker\ModuleServiceProvider" --tag="config"
+```
+---
+
 ## 2.0.2 - February 05, 2026 (Thursday)
 
 ### Zero-Config Milestone
@@ -16,6 +40,8 @@ This major release introduces a "plug-and-play" architecture. By migrating to th
 ### Changed (Breaking Changes)
 - **Namespace Refactor**: All generated classes (Models, Controllers, Services, Providers) now use the `App\Modules\{ModuleName}` prefix instead of the previous `Modules` root.
 - **Path Resolution**: Standardized internal path handling using `app_path()` and `basename()` to ensure full compatibility across Windows and Linux environments.
+- Refined package metadata and dependencies in `composer.json`.
+- Updated documentation to clarify Base Class inheritance architecture.
 
 ### Fixed
 - **PSR-4 Compliance**: Resolved "does not comply with PSR-4" warnings previously seen during `composer dump-autoload` by nesting modules within the project's native `App\` namespace.

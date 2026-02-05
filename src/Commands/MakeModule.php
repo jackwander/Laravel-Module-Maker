@@ -66,23 +66,55 @@ class MakeModule extends Command
   {
       $modulePath = "app/Modules/{$moduleName}/Controllers";
 
+      // 1. Get Base Class from Config (Defaulting to BaseApiController)
+      $baseControllerFullClass = config(
+          'module-maker.base_classes.controller',
+          'Jackwander\ModuleMaker\Resources\BaseApiController'
+      );
+      $baseControllerShortName = class_basename($baseControllerFullClass);
+
       // Ensure the specific module directory exists
       if (!$this->files->exists($modulePath)) {
           $this->files->makeDirectory($modulePath, 0755, true);
           $this->info("Directory {$modulePath} created successfully.");
       }
 
-      // Define the controller name by removing the trailing 's' and appending 'Controller'
+      // 2. Derive Names from Module Name
+      // Controller Name: Plural (e.g., Person -> PeopleController)
       $controllerName = Str::plural($moduleName) . 'Controller';
       $controllerPath = "{$modulePath}/{$controllerName}.php";
-      $variableModel = "$".strtolower(Str::snake($moduleName));
-      $this_variableModel = '$this->'.strtolower(Str::snake($moduleName));
-      $ucmodel = "'".ucwords($moduleName)."'";
-      $serviceName = Str::singular($moduleName).'Service';
 
-      // Check if the controller file already exists
+      // Service Name: Singular (e.g., Person -> PersonService)
+      $serviceName = Str::singular($moduleName) . 'Service';
+
+      // Variable Naming
+      // Force singular for the variable to match standard injection patterns (e.g., $person)
+      $cleanName = Str::singular($moduleName);
+      $variableModel = "$" . strtolower(Str::snake($cleanName));
+      $thisVariableModel = '$this->' . strtolower(Str::snake($cleanName));
+
+      // Model Name string passed to parent (e.g., 'Person')
+      $ucModelName = ucwords($cleanName);
+
       if (!$this->files->exists($controllerPath)) {
-          $controllerContent = "<?php\n\nnamespace App\\Modules\\{$moduleName}\\Controllers;\n\nuse Jackwander\ModuleMaker\Resources\BaseApiController;\nuse Modules\\{$moduleName}\\Services\\{$serviceName};\n\nclass {$controllerName} extends BaseApiController\n{\n  public function __construct(\n    protected {$serviceName} {$variableModel},\n  ){\n    parent::__construct({$this_variableModel}, {$ucmodel});\n  }\n}\n";
+          $controllerContent = <<<EOT
+  <?php
+  
+  namespace App\Modules\\{$moduleName}\Controllers;
+  
+  use {$baseControllerFullClass};
+  use App\Modules\\{$moduleName}\Services\\{$serviceName};
+  
+  class {$controllerName} extends {$baseControllerShortName}
+  {
+      public function __construct(
+          protected {$serviceName} {$variableModel}
+      ) {
+          parent::__construct({$thisVariableModel}, '{$ucModelName}');
+      }
+  }
+  EOT;
+
           $this->files->put($controllerPath, $controllerContent);
           $this->info("Controller file {$controllerPath} created successfully.");
       } else {
@@ -144,25 +176,63 @@ class MakeModule extends Command
 
   protected function createModelFile($directoryPath, $moduleName)
   {
-    $modulePath = "app/Modules/{$moduleName}/Models";
-    // Ensure the specific module directory exists
-    if (!$this->files->exists($modulePath)) {
-        $this->files->makeDirectory($modulePath, 0755, true);
-        $this->info("Directory {$modulePath} created successfully.");
-    }
+      // Note: $directoryPath is passed but seemingly unused in your logic;
+      // we focus on $modulePath for the Models directory.
+      $modulePath = "app/Modules/{$moduleName}/Models";
 
-    $modelName = Str::singular($moduleName); // Remove the trailing 's' from the module name for singular model name
-    $modelPath = "{$modulePath}/{$modelName}.php";
+      // 1. Get Base Class from Config (Defaulting to BaseModel)
+      $baseModelFullClass = config(
+          'module-maker.base_classes.model',
+          'Jackwander\ModuleMaker\Resources\BaseModel'
+      );
+      $baseModelShortName = class_basename($baseModelFullClass);
 
-    $table_name = '$table = ' . '"'. strtolower(Str::plural(Str::snake($moduleName))) . '"';
+      // Ensure the specific module directory exists
+      if (!$this->files->exists($modulePath)) {
+          $this->files->makeDirectory($modulePath, 0755, true);
+          $this->info("Directory {$modulePath} created successfully.");
+      }
 
-    if (!$this->files->exists($modelPath)) {
-      $modelContent = "<?php\n\nnamespace App\\Modules\\{$moduleName}\Models;\n\nuse Jackwander\ModuleMaker\Resources\BaseModel;\nuse Illuminate\Database\Eloquent\Concerns\HasUuids;\nuse Illuminate\Database\Eloquent\SoftDeletes;\n\nclass {$modelName} extends BaseModel\n{\n  use SoftDeletes, HasUuids;\n\n  protected {$table_name};\n\n  protected \$fillable = [\n  ];\n\n  protected \$keyType = 'string';\n\n  public \$incrementing = false;\n}\n\n";
-      $this->files->put($modelPath, $modelContent);
-      $this->info("Model file {$modelPath} created successfully.");
-    } else {
-      $this->info("Model file {$modelPath} already exists.");
-    }
+      // 2. Derive Names
+      // Model Name: Singular (e.g., Persons -> Person)
+      $modelName = Str::singular($moduleName);
+      $modelPath = "{$modulePath}/{$modelName}.php";
+
+      // Table Name: Snake case and plural (e.g., Person -> persons, UserProfile -> user_profiles)
+      $tableName = strtolower(Str::plural(Str::snake($moduleName)));
+
+      if (!$this->files->exists($modelPath)) {
+          // Clean Heredoc Syntax
+          $modelContent = <<<EOT
+  <?php
+  
+  namespace App\Modules\\{$moduleName}\Models;
+  
+  use {$baseModelFullClass};
+  use Illuminate\Database\Eloquent\Concerns\HasUuids;
+  use Illuminate\Database\Eloquent\SoftDeletes;
+  
+  class {$modelName} extends {$baseModelShortName}
+  {
+      use SoftDeletes, HasUuids;
+  
+      protected \$table = '{$tableName}';
+  
+      protected \$fillable = [
+          //
+      ];
+  
+      protected \$keyType = 'string';
+  
+      public \$incrementing = false;
+  }
+  EOT;
+
+          $this->files->put($modelPath, $modelContent);
+          $this->info("Model file {$modelPath} created successfully.");
+      } else {
+          $this->info("Model file {$modelPath} already exists.");
+      }
   }
 
   protected function createServiceProviderFile($moduleName)
@@ -243,33 +313,60 @@ protected function createRouteFile($moduleName)
     }
   }
 
-  protected function createServiceFile($moduleName)
-  {
-      $modulePath = "app/Modules/{$moduleName}/Services";
-      $mainmodulePath = "Modules\\{$moduleName}";
+protected function createServiceFile($moduleName)
+{
+    $modulePath = "app/Modules/{$moduleName}/Services";
+    $mainModulePath = "App\\Modules\\{$moduleName}"; // Corrected to App\Modules
 
-      // Ensure the specific module directory exists
-      if (!$this->files->exists($modulePath)) {
-          $this->files->makeDirectory($modulePath, 0755, true);
-          $this->info("Directory {$modulePath} created successfully.");
-      }
+    // 1. Get Base Class from Config (Defaulting to BaseService)
+    $baseServiceFullClass = config(
+        'module-maker.base_classes.service',
+        'Jackwander\ModuleMaker\Resources\BaseService'
+    );
+    $baseServiceShortName = class_basename($baseServiceFullClass);
 
-      // Define the controller name by removing the trailing 's' and appending 'Controller'
-      $serviceFileName = Str::singular($moduleName) . 'Service';
-      $servicePath = "{$modulePath}/{$serviceFileName}.php";
-      $variableModel = "$".strtolower(Str::snake($moduleName));
-      $this_variableModel = '$this->'.strtolower(Str::snake($moduleName));
-      $modelName = Str::singular($moduleName);
+    // Ensure the specific module directory exists
+    if (!$this->files->exists($modulePath)) {
+        $this->files->makeDirectory($modulePath, 0755, true);
+        $this->info("Directory {$modulePath} created successfully.");
+    }
 
-      // Check if the controller file already exists
-      if (!$this->files->exists($servicePath)) {
-          $serviceContent = "<?php\n\nnamespace App\\Modules\\{$moduleName}\\Services;\n\nuse Jackwander\ModuleMaker\Resources\BaseService;\nuse {$mainmodulePath}\Models\\{$modelName};\n\nclass {$serviceFileName} extends BaseService\n{\n  public function __construct(\n    protected {$modelName} {$variableModel},\n  ){\n    parent::__construct({$this_variableModel});\n  }\n}\n";
-          $this->files->put($servicePath, $serviceContent);
-          $this->info("Service file {$servicePath} created successfully.");
-      } else {
-          $this->info("Service file {$servicePath} already exists.");
-      }
-  }
+    // 2. Derive Names
+    $serviceFileName = Str::singular($moduleName) . 'Service';
+    $servicePath = "{$modulePath}/{$serviceFileName}.php";
+
+    $modelName = Str::singular($moduleName);
+
+    // Variable Naming (Force singular)
+    $variableModel = "$" . strtolower(Str::snake($modelName));
+    $thisVariableModel = '$this->' . strtolower(Str::snake($modelName));
+
+    if (!$this->files->exists($servicePath)) {
+        // Clean Heredoc Syntax
+        $serviceContent = <<<EOT
+<?php
+
+namespace App\Modules\\{$moduleName}\Services;
+
+use {$baseServiceFullClass};
+use {$mainModulePath}\Models\\{$modelName};
+
+class {$serviceFileName} extends {$baseServiceShortName}
+{
+    public function __construct(
+        protected {$modelName} {$variableModel}
+    ) {
+        parent::__construct({$thisVariableModel});
+    }
+}
+EOT;
+
+        $this->files->put($servicePath, $serviceContent);
+        $this->info("Service file {$servicePath} created successfully.");
+    } else {
+        $this->info("Service file {$servicePath} already exists.");
+    }
+}
 
 
   protected function createConfigFile($modulePath)

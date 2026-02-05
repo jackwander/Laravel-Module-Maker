@@ -40,31 +40,64 @@ class MakeController extends Command
     }
 
 
-  protected function createControllerFile($moduleName, $model)
-  {
-      $modulePath = "app/Modules/{$moduleName}/Controllers";
+    protected function createControllerFile($moduleName, $model)
+    {
+        $modulePath = "app/Modules/{$moduleName}/Controllers";
 
-      // Ensure the specific module directory exists
-      if (!$this->files->exists($modulePath)) {
-          $this->files->makeDirectory($modulePath, 0755, true);
-          $this->info("Directory {$modulePath} created successfully.");
-      }
+        // 1. Get Base Class from Config (Defaulting to BaseApiController)
+        $baseControllerFullClass = config(
+            'module-maker.base_classes.api_controller',
+            'Jackwander\ModuleMaker\Resources\BaseApiController'
+        );
+        $baseControllerShortName = class_basename($baseControllerFullClass);
 
-      // Define the controller name by removing the trailing 's' and appending 'Controller'
-      $controllerName = Str::plural($model) . 'Controller';
-      $controllerPath = "{$modulePath}/{$controllerName}.php";
-      $variableModel = "$".strtolower(Str::snake($model));
-      $this_variableModel = '$this->'.strtolower(Str::snake($model));
-      $ucmodel = "'".ucwords($model)."'";
-      $serviceName = Str::singular($model).'Service';
+        // Ensure the specific module directory exists
+        if (!$this->files->exists($modulePath)) {
+            $this->files->makeDirectory($modulePath, 0755, true);
+            $this->info("Directory {$modulePath} created successfully.");
+        }
 
-      // Check if the controller file already exists
-      if (!$this->files->exists($controllerPath)) {
-          $controllerContent = "<?php\n\nnamespace App\\Modules\\{$moduleName}\\Controllers;\n\nuse Jackwander\ModuleMaker\Resources\BaseApiController;\nuse Modules\\{$moduleName}\\Services\\{$serviceName};\n\nclass {$controllerName} extends BaseApiController\n{\n  public function __construct(\n    protected {$serviceName} {$variableModel},\n  ){\n    parent::__construct({$this_variableModel}, {$ucmodel});\n  }\n}\n";
-          $this->files->put($controllerPath, $controllerContent);
-          $this->info("Controller file {$controllerPath} created successfully.");
-      } else {
-          $this->info("Controller file {$controllerPath} already exists.");
-      }
-  }
+        // Naming Conventions
+        $controllerName = Str::plural($model) . 'Controller';
+        $controllerPath = "{$modulePath}/{$controllerName}.php";
+
+        // Dependent Service Naming
+        $serviceName = Str::singular($model) . 'Service';
+
+        // Variable Formatting
+        // $variableModel -> $person
+        $variableModel = "$" . strtolower(Str::snake($model));
+
+        // $thisVariableModel -> $this->person
+        $thisVariableModel = '$this->' . strtolower(Str::snake($model));
+
+        // $ucModelName -> 'Person' (Passed as string to parent)
+        $ucModelName = ucwords($model);
+
+        if (!$this->files->exists($controllerPath)) {
+            // Clean Heredoc Syntax
+            $controllerContent = <<<EOT
+    <?php
+    
+    namespace App\Modules\\{$moduleName}\Controllers;
+    
+    use {$baseControllerFullClass};
+    use App\Modules\\{$moduleName}\Services\\{$serviceName};
+    
+    class {$controllerName} extends {$baseControllerShortName}
+    {
+        public function __construct(
+            protected {$serviceName} {$variableModel}
+        ) {
+            parent::__construct({$thisVariableModel}, '{$ucModelName}');
+        }
+    }
+    EOT;
+
+            $this->files->put($controllerPath, $controllerContent);
+            $this->info("Controller file {$controllerPath} created successfully.");
+        } else {
+            $this->info("Controller file {$controllerPath} already exists.");
+        }
+    }
 }

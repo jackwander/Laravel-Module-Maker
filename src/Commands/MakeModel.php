@@ -68,31 +68,62 @@ class MakeModel extends Command
     }
 
 
-  protected function createModelFile($moduleName, $modelName)
-  {
-    $directoryPath = "app/Modules/{$moduleName}";
-    $modulePath = "app/Modules/{$moduleName}/Models";
-    // Ensure the specific module directory exists
-    if (!$this->files->exists($modulePath)) {
-        $this->files->makeDirectory($modulePath, 0755, true);
-        $this->info("Directory {$modulePath} created successfully.");
+    protected function createModelFile($moduleName, $modelName)
+    {
+        $modulePath = "app/Modules/{$moduleName}/Models";
+
+        // 1. Get the Base Class from Config (with Fallback)
+        $baseModelFullClass = config(
+            'module-maker.base_classes.model',
+            'Jackwander\ModuleMaker\Base\BaseModel'
+        );
+        $baseModelShortName = class_basename($baseModelFullClass);
+
+        // Ensure the specific module directory exists
+        if (!$this->files->exists($modulePath)) {
+            $this->files->makeDirectory($modulePath, 0755, true);
+            $this->info("Directory {$modulePath} created successfully.");
+        }
+
+        $modelName = Str::singular($modelName);
+        $modelPath = "{$modulePath}/{$modelName}.php";
+
+        // Calculate Table Name (snake_case and plural)
+        $tableName = strtolower(Str::plural(Str::snake($this->argument('name'))));
+
+        if (!$this->files->exists($modelPath)) {
+            // clean heredoc syntax
+            $modelContent = <<<EOT
+    <?php
+    
+    namespace App\Modules\\{$moduleName}\Models;
+    
+    use {$baseModelFullClass};
+    use Illuminate\Database\Eloquent\Concerns\HasUuids;
+    use Illuminate\Database\Eloquent\SoftDeletes;
+    
+    class {$modelName} extends {$baseModelShortName}
+    {
+        use SoftDeletes, HasUuids;
+    
+        protected \$table = '{$tableName}';
+    
+        protected \$fillable = [
+            //
+        ];
+    
+        protected \$keyType = 'string';
+    
+        public \$incrementing = false;
     }
+    EOT;
 
-    $modelName = Str::singular($modelName); // Remove the trailing 's' from the module name for singular model name
-    $modelPath = "{$modulePath}/{$modelName}.php";
-
-    $table_name = '$table = ' . '"'. strtolower(Str::plural(Str::snake($this->argument('name')))) . '"';
-
-
-
-    if (!$this->files->exists($modelPath)) {
-      $modelContent = "<?php\n\nnamespace App\\Modules\\{$moduleName}\Models;\n\nuse Jackwander\ModuleMaker\Resources\BaseModel;\nuse Illuminate\Database\Eloquent\Concerns\HasUuids;\nuse Illuminate\Database\Eloquent\SoftDeletes;\n\nclass {$modelName} extends BaseModel\n{\n  use SoftDeletes, HasUuids;\n\n  protected {$table_name};\n\n  protected \$fillable = [\n  ];\n\n  protected \$keyType = 'string';\n\n  public \$incrementing = false;\n}\n\n";
-      $this->files->put($modelPath, $modelContent);
-      $this->info("Model file {$modelPath} created successfully.");
-    } else {
-      $this->info("Model file {$modelPath} already exists.");
+            $this->files->put($modelPath, $modelContent);
+            $this->info("Model file {$modelPath} created successfully.");
+        } else {
+            $this->info("Model file {$modelPath} already exists.");
+        }
     }
-  }
 
   protected function createMigrationFile($moduleName, $modelName)
   {

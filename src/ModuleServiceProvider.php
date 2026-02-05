@@ -12,6 +12,14 @@ use Jackwander\ModuleMaker\Commands\{
 
 class ModuleServiceProvider extends ServiceProvider
 {
+    public function boot()
+    {
+      $configPath = dirname(__DIR__) . '/config/module-maker.php';
+
+      $this->publishes([
+          $configPath => config_path('module-maker.php'),
+      ], 'config');
+    }
     public function register(): void
     {
         $this->registerCommands();
@@ -32,6 +40,10 @@ class ModuleServiceProvider extends ServiceProvider
             $this->registerModuleProviders();
             $this->registerModuleRoutes();
         }
+
+        $this->mergeConfigFrom(
+          dirname(__DIR__) . '/config/module-maker.php', 'module-maker'
+        );
     }
 
     protected function registerCommands(): void

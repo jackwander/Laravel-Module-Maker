@@ -39,31 +39,57 @@ class MakeService extends Command
         $this->info("Service {$modelName} created successfully.");
     }
 
-  protected function createServiceFile($moduleName, $model)
-  {
-      $modulePath = "app/Modules/{$moduleName}/Services";
-      $mainmodulePath = "Modules\\{$moduleName}";
+    protected function createServiceFile($moduleName, $model)
+    {
+        $modulePath = "app/Modules/{$moduleName}/Services";
+        $mainModulePath = "App\\Modules\\{$moduleName}";
 
-      // Ensure the specific module directory exists
-      if (!$this->files->exists($modulePath)) {
-          $this->files->makeDirectory($modulePath, 0755, true);
-          $this->info("Directory {$modulePath} created successfully.");
-      }
+        // 1. Get the Base Class from Config (with Fallback)
+        $baseServiceFullClass = config(
+            'module-maker.base_classes.service',
+            'Jackwander\ModuleMaker\Base\BaseService'
+        );
+        $baseServiceShortName = class_basename($baseServiceFullClass);
 
-      // Define the controller name by removing the trailing 's' and appending 'Service'
-      $serviceFileName = Str::singular($model) . 'Service';
-      $servicePath = "{$modulePath}/{$serviceFileName}.php";
-      $variableModel = "$".strtolower(Str::snake($model));
-      $this_variableModel = '$this->'.strtolower(Str::snake($model));
-      $modelName = Str::singular($model);
+        // Ensure the specific module directory exists
+        if (!$this->files->exists($modulePath)) {
+            $this->files->makeDirectory($modulePath, 0755, true);
+            $this->info("Directory {$modulePath} created successfully.");
+        }
 
-      // Check if the controller file already exists
-      if (!$this->files->exists($servicePath)) {
-          $serviceContent = "<?php\n\nnamespace App\\Modules\\{$moduleName}\\Services;\n\nuse Jackwander\ModuleMaker\Resources\BaseService;\nuse {$mainmodulePath}\Models\\{$modelName};\n\nclass {$serviceFileName} extends BaseService\n{\n  public function __construct(\n    protected {$modelName} {$variableModel},\n  ){\n    parent::__construct({$this_variableModel});\n  }\n}\n";
-          $this->files->put($servicePath, $serviceContent);
-          $this->info("Service file {$servicePath} created successfully.");
-      } else {
-          $this->info("Service file {$servicePath} already exists.");
-      }
-  }
+        // Define the Service name
+        $serviceFileName = Str::singular($model) . 'Service';
+        $servicePath = "{$modulePath}/{$serviceFileName}.php";
+
+        // Variable formatting for the stub
+        $modelName = Str::singular($model);
+        $variableModel = "$" . strtolower(Str::snake($modelName));
+        $thisVariableModel = '$this->' . strtolower(Str::snake($modelName));
+
+        // Check if the file already exists
+        if (!$this->files->exists($servicePath)) {
+            $serviceContent = <<<EOT
+    <?php
+    
+    namespace App\Modules\\{$moduleName}\Services;
+    
+    use {$baseServiceFullClass};
+    use {$mainModulePath}\Models\\{$modelName};
+    
+    class {$serviceFileName} extends {$baseServiceShortName}
+    {
+        public function __construct(
+            protected {$modelName} {$variableModel}
+        ) {
+            parent::__construct({$thisVariableModel});
+        }
+    }
+    EOT;
+
+            $this->files->put($servicePath, $serviceContent);
+            $this->info("Service file {$servicePath} created successfully.");
+        } else {
+            $this->info("Service file {$servicePath} already exists.");
+        }
+    }
 }
