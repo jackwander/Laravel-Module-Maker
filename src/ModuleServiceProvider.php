@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Jackwander\ModuleMaker\Commands\{
     MakeController, MakeMigration, MakeModel,
-    MakeModule, MakeService, ModuleCheck
+    MakeModule, MakeService, ModuleCheck, MakeSeeder
 };
 
 class ModuleServiceProvider extends ServiceProvider
@@ -55,6 +55,7 @@ class ModuleServiceProvider extends ServiceProvider
             MakeService::class,
             MakeController::class,
             ModuleCheck::class,
+            MakeSeeder::class,
         ]);
     }
 

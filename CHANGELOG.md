@@ -1,3 +1,14 @@
+## 2.2.0 - February 06, 2026 (Thursday)
+
+### Added
+- **New Command:** `jw:make-seeder` to generate modular seeders.
+- **Auto-Discovery logic:** Updated `jw:check` to suggest seeder registration snippets.
+- **Naming Conventions:** Added automatic singularization and "Seeder" suffixing for generated classes.
+
+### Changed
+- Refactored Heredoc templates to remove unwanted leading indentation in generated files.
+- Improved terminal output with better coloring and icons (🌱).
+
 ## 2.1.0 - February 05, 2026 (Thursday)
 ### Added
 * **Configurable Inheritance**: Introduced config/module-maker.php allowing developers to define custom base classes for Models, Services, and Controllers.

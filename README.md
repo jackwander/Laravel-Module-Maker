@@ -121,11 +121,39 @@ Available Flags:
 ### 3. Individual Component Generation
 If you need to add a single component to an existing module, you can use these granular commands:
 
+---
+
 #### Migration
 
 ```shell
 php artisan jw:make-migration insert_status_column --module=Person --table=persons
 ```
+---
+
+#### Seeder
+To generate a new seeder for a specific module, use the `jw:make-seeder` command. The package automatically singularizes the name and appends the `Seeder` suffix for you.
+
+```shell
+php artisan jw:make-seeder Status --module=Person
+```
+What happens next?
+
+**File Creation:** A new seeder is created at `app/Modules/Person/Database/Seeders/StatusSeeder.php`.
+
+**Smart Output:** The terminal will provide a `ready-to-copy` snippet so you can register it instantly.
+
+Example Output:
+
+Seeder created: `app/Modules/Person/Database/Seeders/StatusSeeder.php`
+
+🌱 Add this to your `database/seeders/DatabaseSeeder.php`:
+
+`$this->call(\App\Modules\Person\Database\Seeders\StatusSeeder::class);`
+
+### Why use modular seeders?
+>By keeping seeders inside the module, you ensure that your features are completely portable. If you move the Person module to a different project, your data-seeding logic goes with it.
+---
+
 #### Controller
 ```shell
 php artisan jw:make-controller CivilStatus --module=Person

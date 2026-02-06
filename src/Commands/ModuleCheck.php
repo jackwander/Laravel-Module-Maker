@@ -51,6 +51,48 @@ class ModuleCheck extends Command
         }
 
         $this->newLine();
+        $this->showSeederHealth();
+        $this->newLine();
         $this->info("Health check complete.");
+    }
+
+    protected function showSeederHealth()
+    {
+        $this->info("\n🌱 Modular Seeder Discovery:");
+        $modulesPath = app_path('Modules');
+        $foundSeeders = [];
+
+        if (!File::exists($modulesPath)) return;
+
+        $modules = File::directories($modulesPath);
+
+        foreach ($modules as $module) {
+            $moduleName = basename($module);
+            $seederPath = "{$module}/Database/Seeders";
+
+            if (File::exists($seederPath)) {
+                $files = File::files($seederPath);
+                foreach ($files as $file) {
+                    $className = str_replace('.php', '', $file->getFilename());
+                    $foundSeeders[] = "App\\Modules\\{$moduleName}\\Database\\Seeders\\{$className}";
+                }
+            }
+        }
+
+        if (empty($foundSeeders)) {
+            $this->line("   No modular seeders found.");
+            return;
+        }
+
+        $this->line("   Copy this into your database/seeders/DatabaseSeeder.php:");
+        $this->newLine();
+
+        $snippet = "        \$this->call([\n";
+        foreach ($foundSeeders as $seeder) {
+            $snippet .= "            \\{$seeder}::class,\n";
+        }
+        $snippet .= "        ]);";
+
+        $this->question($snippet);
     }
 }
