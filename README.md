@@ -154,6 +154,44 @@ Seeder created: `app/Modules/Person/Database/Seeders/StatusSeeder.php`
 >By keeping seeders inside the module, you ensure that your features are completely portable. If you move the Person module to a different project, your data-seeding logic goes with it.
 ---
 
+### 🧪 Factory Generation
+
+Modular factories require an explicit `$model` property because they live outside the default Laravel namespace. Use the `jw:make-factory` command to generate one:
+
+```shell
+php artisan jw:make-factory Person --module=Person
+```
+
+### Connecting the Factory to your Model
+ If the convention do not apply automatically to your particular application or factory, you may add the `UseFactory` attribute to the model to manually specify the model's factory:
+
+```php
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
+use App\Modules\Person\Database\Factories\PersonFactory;
+
+#[UseFactory(PersonFactory::class)]
+class Person extends model
+{
+
+}
+```
+
+Alternatively, you may overwrite the `newFactory` method on your model to return an instance of the model's corresponding factory directly:
+
+```php
+use App\Modules\Person\Database\Factories\PersonFactory;
+
+/**
+ * Create a new factory instance for the model.
+ */
+protected static function newFactory()
+{
+    return PersonFactory::new();
+}
+```
+
+---
+
 #### Controller
 ```shell
 php artisan jw:make-controller CivilStatus --module=Person

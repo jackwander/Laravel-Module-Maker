@@ -1,3 +1,14 @@
+## 2.3.0 - February 18, 2026 (Wednesday)
+
+### Added
+- **New Command:** `jw:make-factory` to generate modular Eloquent factories directly within the module's `Database/Factories` directory.
+- **Enhanced Controller Logic**: Updated `MakeController` to handle multi-word models. It now correctly converts CamelCase models (e.g., `PersonSalaryComponent`) into human-readable strings (e.g., `Person Salary Component`) for UI labels and success messages.
+- **Auto-Mapping:** Factories now include the correctly namespaced `$model` property by default.
+
+### Changed
+- **Naming Conventions**: Standardized factory and seeder generation to strictly follow singular naming patterns, preventing "Class not found" errors in Laravel's factory discovery.
+- **Heredoc Improvements**: Refined all command stubs to ensure generated files follow PSR-12 indentation standards perfectly.
+
 ## 2.2.0 - February 06, 2026 (Thursday)
 
 ### Added

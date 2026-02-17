@@ -72,7 +72,7 @@ class MakeController extends Command
         $thisVariableModel = '$this->' . strtolower(Str::snake($model));
 
         // $ucModelName -> 'Person' (Passed as string to parent)
-        $ucModelName = ucwords($model);
+        $ucModelName = ucwords(str_replace('_', ' ', Str::snake($model)));;
 
         if (!$this->files->exists($controllerPath)) {
             // Clean Heredoc Syntax

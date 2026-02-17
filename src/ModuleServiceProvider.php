@@ -5,15 +5,36 @@ namespace Jackwander\ModuleMaker;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
-use Jackwander\ModuleMaker\Commands\{
-    MakeController, MakeMigration, MakeModel,
-    MakeModule, MakeService, ModuleCheck, MakeSeeder
-};
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
+use Jackwander\ModuleMaker\Commands\{MakeController,
+  MakeFactory,
+  MakeMigration,
+  MakeModel,
+  MakeModule,
+  MakeService,
+  ModuleCheck,
+  MakeSeeder};
 
 class ModuleServiceProvider extends ServiceProvider
 {
     public function boot()
     {
+      Factory::guessFactoryNamesUsing(function (string $modelName) {
+          // If the model is in our Modules namespace...
+          if (Str::startsWith($modelName, 'App\\Modules\\')) {
+              // Convert: App\Modules\Employees\Models\Employee
+              // To: App\Modules\Employees\Database\Factories\EmployeeFactory
+              return str_replace(
+                  ['\\Models\\', 'Models\\'],
+                  '\\Database\\Factories\\',
+                  $modelName
+              ) . 'Factory';
+          }
+
+          // Fallback to default Laravel behavior
+          return 'Database\\Factories\\' . class_basename($modelName) . 'Factory';
+      });
       $configPath = dirname(__DIR__) . '/config/module-maker.php';
 
       $this->publishes([
@@ -56,6 +77,7 @@ class ModuleServiceProvider extends ServiceProvider
             MakeController::class,
             ModuleCheck::class,
             MakeSeeder::class,
+            MakeFactory::class,
         ]);
     }
 
