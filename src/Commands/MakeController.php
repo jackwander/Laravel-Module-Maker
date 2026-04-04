@@ -77,6 +77,9 @@ class MakeController extends Command
         $plainVariableModel = strtolower(Str::snake($model));
         $ucModelName = ucwords(str_replace('_', ' ', Str::snake($model)));
 
+        $resourceName = Str::singular($model) . 'Resource';
+        $resourceNamespace = "{$baseNamespace}\\{$moduleName}\\Resources\\{$resourceName}";
+
         if (!$this->files->exists($controllerPath)) {
             $controllerContent = $this->getStubContent('controller', [
                 'namespace' => $namespace,
@@ -88,6 +91,8 @@ class MakeController extends Command
                 'variableModel' => $variableModel,
                 'plainVariableModel' => $plainVariableModel,
                 'ucModelName' => $ucModelName,
+                'resourceNamespace' => $resourceNamespace,
+                'resourceName' => $resourceName,
             ]);
 
             $this->files->put($controllerPath, $controllerContent);

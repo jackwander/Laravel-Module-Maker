@@ -12,10 +12,11 @@ class MakeModel extends Command
     use \Jackwander\ModuleMaker\Commands\Traits\InteractsWithStubs;
 
     protected $signature = 'jw:make-model {name} {--module=}
+                    {--r|resource : Create a new resource for the module}
                     {--s|service : Create a new service for the module}
                     {--m|migration : Create a new migration for the module}
                     {--c|controller : Create a new controller for the module}
-                    {--a|all : Generate a migration, service, and controller}
+                    {--a|all : Generate a migration, service, resource, and controller}
                     ';
     protected $description = 'Create a new model file for a specific module';
 
@@ -59,6 +60,13 @@ class MakeModel extends Command
 
         if ($all || $this->option('service')) {
             Artisan::call('jw:make-service', [
+                'name' => $modelName,
+                '--module' => $moduleName,
+            ]);
+        }
+        
+        if ($all || $this->option('resource')) {
+            Artisan::call('jw:make-resource', [
                 'name' => $modelName,
                 '--module' => $moduleName,
             ]);

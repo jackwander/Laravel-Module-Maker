@@ -4,12 +4,17 @@ namespace {{ namespace }};
 
 use {{ baseControllerFullClass }};
 use {{ mainModuleNamespace }}\Services\{{ serviceName }};
+use {{ resourceNamespace }};
 
 class {{ class }} extends {{ baseControllerShortName }}
 {
     public function __construct(
         protected {{ serviceName }} {{ variableModel }}
     ) {
-        parent::__construct($this->{{ plainVariableModel }}, '{{ ucModelName }}');
+        parent::__construct(
+            $this->{{ plainVariableModel }}, 
+            '{{ ucModelName }}',
+            {{ resourceName }}::class
+        );
     }
 }

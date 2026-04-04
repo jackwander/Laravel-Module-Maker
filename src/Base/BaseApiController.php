@@ -9,35 +9,59 @@ use Illuminate\Support\Facades\Validator;
 
 class BaseApiController extends Controller
 {
-  protected $repository, $module;
-  public function __construct($repository, $module){
+  protected $repository, $module, $resourceClass;
+
+  public function __construct($repository, $module, $resourceClass = null){
     $this->repository = $repository;
     $this->module = $module;
+    $this->resourceClass = $resourceClass;
+  }
+
+  /**
+   * Helper function to wrap data in a Laravel API Resource if one is defined.
+   */
+  protected function toResource($data, $isCollection = false) {
+    if (!$this->resourceClass || !class_exists($this->resourceClass)) {
+      return $data;
+    }
+    return $isCollection 
+        ? $this->resourceClass::collection($data) 
+        : new $this->resourceClass($data);
   }
 
   public function index(Request $request){
-    return response()->json($this->repository->paginateWithFilters($request->all()),200);
+    $data = $this->repository->paginateWithFilters($request->all());
+    
+    // API Resources handle their own pagination wrapping automatically
+    return $this->resourceClass 
+        ? $this->toResource($data, true) 
+        : response()->json($data, 200);
   }
 
   public function all(Request $request){
-    return response()->json($this->repository->all($request->all()),200);
+    $data = $this->repository->all($request->all());
+    
+    return $this->resourceClass 
+        ? $this->toResource($data, true) 
+        : response()->json($data, 200);
   }
 
   public function store(Request $request){
-    $repository = $this->repository->create($request->all());
+    $model = $this->repository->create($request->all());
     return response()->json([
       'message' => $this->module.' Successfully Created',
-      'data' => $repository->toArray()
-    ],200);
+      'data' => $this->resourceClass ? $this->toResource($model) : $model->toArray()
+    ], 200);
   }
 
+  public function update(Request $request, $id){
+    $model = $this->repository->update($request->all(), $id);
+    $fetchedModel = $this->repository->find($id);
 
-  public function update(Request $request,$id){
-    $repository = $this->repository->update($request->all(),$id);
     return response()->json([
       'message' => $this->module.' Successfully Updated',
-      'data' => $this->repository->find($id)
-    ],200);
+      'data' => $this->resourceClass ? $this->toResource($fetchedModel) : $fetchedModel
+    ], 200);
   }
 
   public function destroy($id){
@@ -46,19 +70,27 @@ class BaseApiController extends Controller
     return response()->json([
       'message' => $this->module.' Successfully Deleted',
       'data' => $item
-    ],200);
+    ], 200);
   }
 
   public function show($id){
-    return response()->json($this->repository->find($id),200);
+    $data = $this->repository->find($id);
+    
+    return $this->resourceClass 
+        ? $this->toResource($data) 
+        : response()->json($data, 200);
   }
 
-  public function relation($id,$relation){
-    return response()->json($this->repository->relation($id,$relation)->toArray(),200);
+  public function relation($id, $relation){
+    return response()->json($this->repository->relation($id, $relation)->toArray(), 200);
   }
 
   public function findBySlug($slug) {
-    return response()->json($this->repository->findBySlug($slug),200);
+    $data = $this->repository->findBySlug($slug);
+
+    return $this->resourceClass 
+        ? $this->toResource($data) 
+        : response()->json($data, 200);
   }
 
   public function guard()

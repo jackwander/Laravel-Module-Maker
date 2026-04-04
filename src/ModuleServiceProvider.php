@@ -13,6 +13,7 @@ use Jackwander\ModuleMaker\Commands\{MakeController,
   MakeModel,
   MakeModule,
   MakeService,
+  MakeResource,
   ModuleCheck,
   MakeSeeder};
 
@@ -67,6 +68,7 @@ class ModuleServiceProvider extends ServiceProvider
             MakeMigration::class,
             MakeModel::class,
             MakeService::class,
+            MakeResource::class,
             MakeController::class,
             ModuleCheck::class,
             MakeSeeder::class,
