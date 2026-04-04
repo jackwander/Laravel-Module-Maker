@@ -1,5 +1,75 @@
-# 🚀 Release v2.0.0 — Zero-Config Milestone
+# 🚀 Release v2.5.0 — Domain-Driven Architecture Commands
 
+This version introduces a massive expansion of the generation ecosystem, allowing for completely isolated Domain-Driven Design architectures inside your modules.
+
+### ✨ What’s New in v2.5.0
+
+#### 🛠️ Extended Artisan Engine
+I introduced 7 new generation commands to fully support enterprise-scale architecture:
+* **`jw:make-request`**: Generates form validation Requests.
+* **`jw:make-job`**: Generates queued background Jobs.
+* **`jw:make-event` & `jw:make-listener`**: Scaffolds modular Events architecture.
+* **`jw:make-policy` & `jw:make-rule`**: Creates Authorization Policies and Custom Validation Rules.
+* **`jw:make-observer`**: Creates Observers for hooking into Eloquent lifecycles.
+
+#### 💎 API Resource Polish
+Fully polished API Resource boilerplate generation including seamless Controller dependency injection during `--all` commands! 
+
+---
+
+# 🚀 Release v2.4.0 — Performance & Publishable Stubs
+
+This version focuses strictly on optimizing package performance, enhancing developer flexibility, and solidifying the testing framework.
+
+### ✨ What’s New in v2.4.0
+
+#### 🛠️ Publishable Stubs
+By replacing massive internal Heredoc strings with flexible template files, developers can now publish and fully customize their generation logic:
+```bash
+php artisan vendor:publish --tag="module-maker-stubs"
+```
+
+#### ⚡ Performance Boost
+Upgraded module file discovery to leverage Laravel's caching mechanisms, completely eliminating dynamic file-system scans in production workflows and drastically streamlining boot times!
+
+#### 🧪 Pest PHP / Testbench
+Added foundational support and basic feature tests using Orchestra Testbench and Pest PHP for deep package validation.
+
+### ⚠️ Architecture Refactor
+* **Base Namespace:** Relocated the base blueprint classes from `Jackwander\ModuleMaker\Resources` to `Jackwander\ModuleMaker\Base` to better align with conventional Laravel naming.
+* Legacy shims have been preserved to avoid breaking existing projects, but usage is soft-deprecated.
+
+---
+
+# 🚀 Release v2.3.0 — Modular Factories
+
+### ✨ What’s New in v2.3.0
+
+* **`jw:make-factory` Command:** Generate modular Eloquent factories directly within the `Database/Factories` directory.
+* **Smart Context:** Controller and Model generators now elegantly interpret multi-word inputs (e.g. `PersonSalaryComponent`) into accurate UI labels.
+* **Namespacing:** Factory generation strictly links dependencies automatically by explicitly declaring the module-specific `$model` property.
+
+---
+
+# 🚀 Release v2.2.0 — Modular Seeders
+
+### ✨ What’s New in v2.2.0
+* **`jw:make-seeder` Command:** Added the ability to construct modular database seeders with strictly enforced naming conventions.
+* **Smart Output Engine:** Terminal feedback was updated to instantly output copy-paste snippets for registering Seeders directly into your `DatabaseSeeder.php`!
+* **Heredoc Alignment:** Refactored multiple hereditary templates to strip unwanted indentation formatting anomalies.
+
+---
+
+# 🚀 Release v2.1.0 — Architecture Bridge & Vendor Config
+
+### ✨ What’s New in v2.1.0
+* **Configurable Inheritance:** Introduced `config/module-maker.php` to define explicit routing structures for base models, base controllers, and base services! 
+* **Vendor Config Publishing:** Supported `vendor:publish` workflows to natively override root configurations.
+* **Bridge Architecture:** Generators were rebuilt to seamlessly read the newly published config, giving developers the ability to abstract standard endpoints into "App Core" bridge layers without editing internal logic.
+
+---
+
+# 🚀 Release v2.0.0 — Zero-Config Milestone
 I am excited to announce the release of **v2.0.0**! This version represents a complete structural overhaul I’ve built to make modular Laravel development faster, cleaner, and completely configuration-free.
 
 
