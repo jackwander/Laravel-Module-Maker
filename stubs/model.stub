@@ -1,0 +1,22 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ baseModelFullClass }};
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class {{ class }} extends {{ baseModelShortName }}
+{
+    use SoftDeletes, HasUuids;
+
+    protected $table = '{{ tableName }}';
+
+    protected $fillable = [
+        //
+    ];
+
+    protected $keyType = 'string';
+
+    public $incrementing = false;
+}

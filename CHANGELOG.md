@@ -1,3 +1,15 @@
+## 2.4.0 - April 05, 2026
+
+### Added
+- **Publishable Stubs:** You can now publish and completely customize the generation stubs for Controllers, Models, Services, Routes, Config, and Providers using `php artisan vendor:publish --tag="module-maker-stubs"`.
+- **Performance Boost:** Upgraded module file discovery to leverage Laravel's caching mechanisms, completely eliminating dynamic file-system scans in production workflows and optimizing boot times.
+- **Pest PHP / Testbench:** Added foundational support and basic feature tests using Orchestra Testbench and Pest PHP for package validation.
+
+### Changed
+- **Architecture Standardized:** Relocated the base blueprint classes from `Jackwander\ModuleMaker\Resources` to `Jackwander\ModuleMaker\Base` to better align with conventional Laravel architecture naming logic. 
+- **Backward Compatibility:** Preserved legacy shims in the old `Resources` directory to smoothly prevent "Class Not Found" errors for active modules generated via `v2.3.0` and older while softly indicating deprecation.
+- **Command Refactoring:** Replaced massive hardcoded Heredoc strings with flexible stub templates under the hood, dramatically cleaning package internal complexity.
+
 ## 2.3.0 - February 18, 2026 (Wednesday)
 
 ### Added

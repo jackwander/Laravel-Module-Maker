@@ -1,0 +1,12 @@
+<?php
+
+use {{ controllerNamespace }};
+use Illuminate\Support\Facades\Route;
+
+Route::controller({{ controllerName }}::class)->group(function () {
+    Route::group(['prefix' => '{{ routePrefix }}'], function() {
+        Route::get('/all', 'all');
+    });
+})->middleware('auth:api');
+
+Route::apiResource('{{ routePrefix }}', {{ controllerName }}::class)->middleware('auth:api');

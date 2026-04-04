@@ -9,6 +9,8 @@ use Illuminate\Support\Str;
 
 class MakeModel extends Command
 {
+    use \Jackwander\ModuleMaker\Commands\Traits\InteractsWithStubs;
+
     protected $signature = 'jw:make-model {name} {--module=}
                     {--s|service : Create a new service for the module}
                     {--m|migration : Create a new migration for the module}
@@ -35,7 +37,9 @@ class MakeModel extends Command
             return 1;
         }
 
-        $modulePath = app_path("Modules/{$moduleName}/Models");
+        $basePath = config('module-maker.paths.modules', app_path('Modules'));
+        $modulePath = "{$basePath}/{$moduleName}";
+
         if (!$this->files->exists($modulePath)) {
             $this->error("$moduleName not found.");
             return 1;
@@ -70,9 +74,13 @@ class MakeModel extends Command
 
     protected function createModelFile($moduleName, $modelName)
     {
-        $modulePath = "app/Modules/{$moduleName}/Models";
+        $basePath = config('module-maker.paths.modules', app_path('Modules'));
+        $modulePath = "{$basePath}/{$moduleName}/Models";
 
-        // 1. Get the Base Class from Config (with Fallback)
+        $baseNamespace = config('module-maker.namespaces.root', 'App\\Modules');
+        $namespace = "{$baseNamespace}\\{$moduleName}\\Models";
+
+        // 1. Get the Base Class from Config
         $baseModelFullClass = config(
             'module-maker.base_classes.model',
             'Jackwander\ModuleMaker\Base\BaseModel'
@@ -92,31 +100,13 @@ class MakeModel extends Command
         $tableName = strtolower(Str::plural(Str::snake($this->argument('name'))));
 
         if (!$this->files->exists($modelPath)) {
-            // clean heredoc syntax
-            $modelContent = <<<EOT
-    <?php
-    
-    namespace App\Modules\\{$moduleName}\Models;
-    
-    use {$baseModelFullClass};
-    use Illuminate\Database\Eloquent\Concerns\HasUuids;
-    use Illuminate\Database\Eloquent\SoftDeletes;
-    
-    class {$modelName} extends {$baseModelShortName}
-    {
-        use SoftDeletes, HasUuids;
-    
-        protected \$table = '{$tableName}';
-    
-        protected \$fillable = [
-            //
-        ];
-    
-        protected \$keyType = 'string';
-    
-        public \$incrementing = false;
-    }
-    EOT;
+            $modelContent = $this->getStubContent('model', [
+                'namespace' => $namespace,
+                'baseModelFullClass' => $baseModelFullClass,
+                'baseModelShortName' => $baseModelShortName,
+                'class' => $modelName,
+                'tableName' => $tableName,
+            ]);
 
             $this->files->put($modelPath, $modelContent);
             $this->info("Model file {$modelPath} created successfully.");

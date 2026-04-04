@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 
 class MakeController extends Command
 {
+    use \Jackwander\ModuleMaker\Commands\Traits\InteractsWithStubs;
+
     protected $signature = 'jw:make-controller {name} {--module=}';
     protected $description = 'Create a new Controller file for a specific module';
 
@@ -29,9 +31,11 @@ class MakeController extends Command
             return 1;
         }
 
-        $modulePath = app_path("Modules/{$moduleName}/Models");
+        $basePath = config('module-maker.paths.modules', app_path('Modules'));
+        $modulePath = "{$basePath}/{$moduleName}/Models";
+
         if (!$this->files->exists($modulePath)) {
-            $this->error("$moduleName not found.");
+            $this->error("Module models directory not found at $modulePath. Ensure you created the module properly.");
             return 1;
         }
 
@@ -42,12 +46,17 @@ class MakeController extends Command
 
     protected function createControllerFile($moduleName, $model)
     {
-        $modulePath = "app/Modules/{$moduleName}/Controllers";
+        $basePath = config('module-maker.paths.modules', app_path('Modules'));
+        $modulePath = "{$basePath}/{$moduleName}/Controllers";
+        
+        $baseNamespace = config('module-maker.namespaces.root', 'App\\Modules');
+        $namespace = "{$baseNamespace}\\{$moduleName}\\Controllers";
+        $mainModuleNamespace = "{$baseNamespace}\\{$moduleName}";
 
-        // 1. Get Base Class from Config (Defaulting to BaseApiController)
+        // 1. Get Base Class from Config
         $baseControllerFullClass = config(
             'module-maker.base_classes.api_controller',
-            'Jackwander\ModuleMaker\Resources\BaseApiController'
+            'Jackwander\ModuleMaker\Base\BaseApiController'
         );
         $baseControllerShortName = class_basename($baseControllerFullClass);
 
@@ -64,35 +73,22 @@ class MakeController extends Command
         // Dependent Service Naming
         $serviceName = Str::singular($model) . 'Service';
 
-        // Variable Formatting
-        // $variableModel -> $person
         $variableModel = "$" . strtolower(Str::snake($model));
-
-        // $thisVariableModel -> $this->person
-        $thisVariableModel = '$this->' . strtolower(Str::snake($model));
-
-        // $ucModelName -> 'Person' (Passed as string to parent)
-        $ucModelName = ucwords(str_replace('_', ' ', Str::snake($model)));;
+        $plainVariableModel = strtolower(Str::snake($model));
+        $ucModelName = ucwords(str_replace('_', ' ', Str::snake($model)));
 
         if (!$this->files->exists($controllerPath)) {
-            // Clean Heredoc Syntax
-            $controllerContent = <<<EOT
-    <?php
-    
-    namespace App\Modules\\{$moduleName}\Controllers;
-    
-    use {$baseControllerFullClass};
-    use App\Modules\\{$moduleName}\Services\\{$serviceName};
-    
-    class {$controllerName} extends {$baseControllerShortName}
-    {
-        public function __construct(
-            protected {$serviceName} {$variableModel}
-        ) {
-            parent::__construct({$thisVariableModel}, '{$ucModelName}');
-        }
-    }
-    EOT;
+            $controllerContent = $this->getStubContent('controller', [
+                'namespace' => $namespace,
+                'baseControllerFullClass' => $baseControllerFullClass,
+                'mainModuleNamespace' => $mainModuleNamespace,
+                'serviceName' => $serviceName,
+                'class' => $controllerName,
+                'baseControllerShortName' => $baseControllerShortName,
+                'variableModel' => $variableModel,
+                'plainVariableModel' => $plainVariableModel,
+                'ucModelName' => $ucModelName,
+            ]);
 
             $this->files->put($controllerPath, $controllerContent);
             $this->info("Controller file {$controllerPath} created successfully.");

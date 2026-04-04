@@ -27,12 +27,12 @@ composer require jackwander/laravel-module-maker
 
 To keep your application maintainable and scalable, this package encourages an **Intermediate Base Class** (Bridge) pattern. This allows you to customize global behavior—like custom response formatting or shared business logic—without ever touching the `vendor/` directory.
 
-### The Inheritance Chain
+    The Inheritance Chain
 Your generated modules follow this hierarchy:
 
 **`Vendor Base`** ➜ **`App Core`** ➜ **`Module File`**
 
-1.  **Vendor Base:** The raw logic provided by the package inside `ModuleMaker/Resources` (Read-only).
+1.  **Vendor Base:** The raw logic provided by the package inside `ModuleMaker/Base` (Read-only).
 2.  **App Core:** Your custom bridge where you add project-specific logic (Editable).
 3.  **Module File:** The specific logic for a feature (e.g., `PersonService`).
 
@@ -58,7 +58,7 @@ We recommend creating a `Core` directory to house your bridge classes at `app/Mo
 namespace App\Modules\Core;
 
 // Import the package's base resource from the vendor folder
-use Jackwander\ModuleMaker\Resources\BaseService as VendorBaseService;
+use Jackwander\ModuleMaker\Base\BaseService as VendorBaseService;
 
 class BaseService extends VendorBaseService 
 {
@@ -89,6 +89,14 @@ return [
 
 ### The Benefit
 Now, whenever you run php artisan `jw:make-service`, the generated file will automatically extend `App\Modules\Core\BaseService` instead of the vendor class. This gives you total control over your project's architecture while still automating the boring boilerplate.
+
+### 4. Customizing Stubs
+If you want to fully modify the structure of the generated code (adding default traits, custom imports, or different PHPDoc blocks), you can publish the Stubs:
+
+```shell
+php artisan vendor:publish --provider="Jackwander\ModuleMaker\ModuleServiceProvider" --tag="module-maker-stubs"
+```
+This will copy standard Laravel `.stub` files into `stubs/vendor/module-maker/`. The package will automatically read these templates before falling back to the defaults.
 
 --- 
 

@@ -1,6 +1,6 @@
 {
     "name": "jackwander/laravel-module-maker",
-    "version": "2.3.0",
+    "version": "2.4.0",
     "description": "A zero-config custom module creator for Laravel 11 projects.",
     "type": "library",
     "license": "MIT",
@@ -16,9 +16,19 @@
         "illuminate/console": "^11.0|^12.0",
         "illuminate/filesystem": "^11.0|^12.0"
     },
+    "require-dev": {
+        "orchestra/testbench": "^9.0",
+        "pestphp/pest": "^3.0",
+        "pestphp/pest-plugin-laravel": "^3.0"
+    },
     "autoload": {
         "psr-4": {
             "Jackwander\\ModuleMaker\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Jackwander\\ModuleMaker\\Tests\\": "tests/"
         }
     },
     "extra": {
@@ -26,6 +36,11 @@
             "providers": [
                 "Jackwander\\ModuleMaker\\ModuleServiceProvider"
             ]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
         }
     },
     "minimum-stability": "stable",

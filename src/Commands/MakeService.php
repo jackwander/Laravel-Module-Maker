@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 
 class MakeService extends Command
 {
+    use \Jackwander\ModuleMaker\Commands\Traits\InteractsWithStubs;
+
     protected $signature = 'jw:make-service {name} {--module=}';
     protected $description = 'Create a new Service file for a specific module';
 
@@ -29,7 +31,9 @@ class MakeService extends Command
             return 1;
         }
 
-        $modulePath = app_path("Modules/{$moduleName}/Models");
+        $basePath = config('module-maker.paths.modules', app_path('Modules'));
+        $modulePath = "{$basePath}/{$moduleName}";
+
         if (!$this->files->exists($modulePath)) {
             $this->error("$moduleName not found.");
             return 1;
@@ -41,10 +45,14 @@ class MakeService extends Command
 
     protected function createServiceFile($moduleName, $model)
     {
-        $modulePath = "app/Modules/{$moduleName}/Services";
-        $mainModulePath = "App\\Modules\\{$moduleName}";
+        $basePath = config('module-maker.paths.modules', app_path('Modules'));
+        $modulePath = "{$basePath}/{$moduleName}/Services";
+        
+        $baseNamespace = config('module-maker.namespaces.root', 'App\\Modules');
+        $namespace = "{$baseNamespace}\\{$moduleName}\\Services";
+        $mainModuleNamespace = "{$baseNamespace}\\{$moduleName}";
 
-        // 1. Get the Base Class from Config (with Fallback)
+        // 1. Get the Base Class from Config
         $baseServiceFullClass = config(
             'module-maker.base_classes.service',
             'Jackwander\ModuleMaker\Base\BaseService'
@@ -64,27 +72,20 @@ class MakeService extends Command
         // Variable formatting for the stub
         $modelName = Str::singular($model);
         $variableModel = "$" . strtolower(Str::snake($modelName));
-        $thisVariableModel = '$this->' . strtolower(Str::snake($modelName));
+        $plainVariableModel = strtolower(Str::snake($modelName));
 
         // Check if the file already exists
         if (!$this->files->exists($servicePath)) {
-            $serviceContent = <<<EOT
-    <?php
-    
-    namespace App\Modules\\{$moduleName}\Services;
-    
-    use {$baseServiceFullClass};
-    use {$mainModulePath}\Models\\{$modelName};
-    
-    class {$serviceFileName} extends {$baseServiceShortName}
-    {
-        public function __construct(
-            protected {$modelName} {$variableModel}
-        ) {
-            parent::__construct({$thisVariableModel});
-        }
-    }
-    EOT;
+            $serviceContent = $this->getStubContent('service', [
+                'namespace' => $namespace,
+                'baseServiceFullClass' => $baseServiceFullClass,
+                'baseServiceShortName' => $baseServiceShortName,
+                'mainModuleNamespace' => $mainModuleNamespace,
+                'modelName' => $modelName,
+                'class' => $serviceFileName,
+                'variableModel' => $variableModel,
+                'plainVariableModel' => $plainVariableModel,
+            ]);
 
             $this->files->put($servicePath, $serviceContent);
             $this->info("Service file {$servicePath} created successfully.");

@@ -3,6 +3,24 @@
 return [
     /*
     |--------------------------------------------------------------------------
+    | Package Paths & Namespaces
+    |--------------------------------------------------------------------------
+    |
+    | Configure the root directory and root namespace for your modules.
+    | By default, they will be placed in the `app/Modules` directory.
+    |
+    */
+    'paths' => [
+        'modules' => base_path('app/Modules'),
+        'api_prefix' => 'api/v1',
+    ],
+
+    'namespaces' => [
+        'root' => 'App\\Modules',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Base Classes
     |--------------------------------------------------------------------------
     |
@@ -12,8 +30,8 @@ return [
     |
     */
     'base_classes' => [
-        'service'    => \Jackwander\ModuleMaker\Resources\BaseService::class,
-        'api_controller' => \Jackwander\ModuleMaker\Resources\BaseApiController::class,
-        'model'      => \Jackwander\ModuleMaker\Resources\BaseModel::class,
+        'service'        => \Jackwander\ModuleMaker\Base\BaseService::class,
+        'api_controller' => \Jackwander\ModuleMaker\Base\BaseApiController::class,
+        'model'          => \Jackwander\ModuleMaker\Base\BaseModel::class,
     ]
 ];

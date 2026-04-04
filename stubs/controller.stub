@@ -1,0 +1,15 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ baseControllerFullClass }};
+use {{ mainModuleNamespace }}\Services\{{ serviceName }};
+
+class {{ class }} extends {{ baseControllerShortName }}
+{
+    public function __construct(
+        protected {{ serviceName }} {{ variableModel }}
+    ) {
+        parent::__construct($this->{{ plainVariableModel }}, '{{ ucModelName }}');
+    }
+}

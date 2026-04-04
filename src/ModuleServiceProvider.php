@@ -35,36 +35,29 @@ class ModuleServiceProvider extends ServiceProvider
           // Fallback to default Laravel behavior
           return 'Database\\Factories\\' . class_basename($modelName) . 'Factory';
       });
+
       $configPath = dirname(__DIR__) . '/config/module-maker.php';
+      $stubsPath = dirname(__DIR__) . '/stubs';
 
       $this->publishes([
           $configPath => config_path('module-maker.php'),
-      ], 'config');
+      ], 'module-maker-config');
+
+      $this->publishes([
+          $stubsPath => base_path('stubs/vendor/module-maker'),
+      ], 'module-maker-stubs');
     }
     public function register(): void
     {
+        $this->mergeConfigFrom(
+            dirname(__DIR__) . '/config/module-maker.php', 'module-maker'
+        );
+
         $this->registerCommands();
 
-        $modulesPath = app_path('Modules');
-
-        if (File::exists($modulesPath)) {
-            // 1. Get the ACTIVE Composer loader instance
-            $loaders = spl_autoload_functions();
-            foreach ($loaders as $loader) {
-                if (is_array($loader) && $loader[0] instanceof \Composer\Autoload\ClassLoader) {
-                    $loader[0]->addPsr4('Modules\\', $modulesPath);
-                    break;
-                }
-            }
-
-            // 2. Now register providers and routes
+        if (file_exists(config('module-maker.paths.modules', app_path('Modules')))) {
             $this->registerModuleProviders();
-            $this->registerModuleRoutes();
         }
-
-        $this->mergeConfigFrom(
-          dirname(__DIR__) . '/config/module-maker.php', 'module-maker'
-        );
     }
 
     protected function registerCommands(): void
@@ -83,31 +76,22 @@ class ModuleServiceProvider extends ServiceProvider
 
     protected function registerModuleProviders(): void
     {
-        $modulesPath = app_path('Modules');
-        $moduleDirectories = File::directories($modulesPath);
+        $modulesPath = config('module-maker.paths.modules', app_path('Modules'));
 
-        foreach ($moduleDirectories as $directory) {
-            $moduleName = basename($directory);
-            $providerClass = "App\\Modules\\{$moduleName}\\Providers\\{$moduleName}ServiceProvider";
+        // Cache the discovered modules for production performance.
+        $modules = $this->app->environment('local', 'testing')
+            ? array_map('basename', File::directories($modulesPath))
+            : cache()->rememberForever('module-maker.modules', function () use ($modulesPath) {
+                return array_map('basename', File::directories($modulesPath));
+            });
+
+        $baseNamespace = config('module-maker.namespaces.root', 'App\\Modules');
+
+        foreach ($modules as $moduleName) {
+            $providerClass = "{$baseNamespace}\\{$moduleName}\\Providers\\{$moduleName}ServiceProvider";
 
             if (class_exists($providerClass)) {
                 $this->app->register($providerClass);
-            }
-        }
-    }
-
-    protected function registerModuleRoutes(): void
-    {
-        $modulesPath = app_path('Modules');
-        $moduleDirectories = File::directories($modulesPath);
-
-        foreach ($moduleDirectories as $directory) {
-            $routeFile = "{$directory}/Routes/api.php";
-
-            if (File::exists($routeFile)) {
-                Route::prefix('api/v1')
-                    ->middleware('api')
-                    ->group($routeFile);
             }
         }
     }
