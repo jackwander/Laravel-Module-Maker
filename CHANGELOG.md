@@ -1,3 +1,17 @@
+## 2.5.0 - April 05, 2026
+
+### Added
+- **Extended Artisan Commands:** Introduced 7 new generation commands to fully support Domain-Driven Design architectures:
+  - `jw:make-request`
+  - `jw:make-job`
+  - `jw:make-event`
+  - `jw:make-listener`
+  - `jw:make-policy`
+  - `jw:make-rule`
+  - `jw:make-observer`
+- Each command utilizes the new stub architecture, meaning developers can now also customize the generation logic of Events, Jobs, and Policies by publishing the `module-maker-stubs`.
+- **API Resource Polish:** Fully polished API Resource boilerplate generation including seamless Controller dependency injection during `--all` commands.
+
 ## 2.4.0 - April 05, 2026
 
 ### Added

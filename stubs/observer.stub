@@ -1,0 +1,46 @@
+<?php
+
+namespace {{ namespace }};
+
+class {{ class }}
+{
+    /**
+     * Handle the Model "created" event.
+     */
+    public function created($model): void
+    {
+        //
+    }
+
+    /**
+     * Handle the Model "updated" event.
+     */
+    public function updated($model): void
+    {
+        //
+    }
+
+    /**
+     * Handle the Model "deleted" event.
+     */
+    public function deleted($model): void
+    {
+        //
+    }
+
+    /**
+     * Handle the Model "restored" event.
+     */
+    public function restored($model): void
+    {
+        //
+    }
+
+    /**
+     * Handle the Model "force deleted" event.
+     */
+    public function forceDeleted($model): void
+    {
+        //
+    }
+}

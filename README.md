@@ -132,7 +132,6 @@ If you need to add a single component to an existing module, you can use these g
 ---
 
 #### Migration
-
 ```shell
 php artisan jw:make-migration insert_status_column --module=Person --table=persons
 ```
@@ -150,20 +149,12 @@ What happens next?
 
 **Smart Output:** The terminal will provide a `ready-to-copy` snippet so you can register it instantly.
 
-Example Output:
-
-Seeder created: `app/Modules/Person/Database/Seeders/StatusSeeder.php`
-
-🌱 Add this to your `database/seeders/DatabaseSeeder.php`:
-
-`$this->call(\App\Modules\Person\Database\Seeders\StatusSeeder::class);`
-
 ### Why use modular seeders?
->By keeping seeders inside the module, you ensure that your features are completely portable. If you move the Person module to a different project, your data-seeding logic goes with it.
+> By keeping seeders inside the module, you ensure that your features are completely portable. If you move the Person module to a different project, your data-seeding logic goes with it.
+
 ---
 
 ### 🧪 Factory Generation
-
 Modular factories require an explicit `$model` property because they live outside the default Laravel namespace. Use the `jw:make-factory` command to generate one:
 
 ```shell
@@ -171,31 +162,48 @@ php artisan jw:make-factory Person --module=Person
 ```
 
 ### Connecting the Factory to your Model
- If the convention do not apply automatically to your particular application or factory, you may add the `UseFactory` attribute to the model to manually specify the model's factory:
+ If the convention do not apply automatically to your particular application or factory, you may add the `UseFactory` attribute to the model to manually specify the model's factory.
 
-```php
-use Illuminate\Database\Eloquent\Attributes\UseFactory;
-use App\Modules\Person\Database\Factories\PersonFactory;
+---
 
-#[UseFactory(PersonFactory::class)]
-class Person extends model
-{
+### ✨ Domain-Driven Generation Commands (v2.5.0+)
+Beyond the basics, this package provides a massive suite of commands to build out complete domain-driven architectures completely isolated within your modules.
 
-}
+#### API Resource
+```shell
+php artisan jw:make-resource CivilStatus --module=Person
+```
+*(Tip: The `--all` flag on `jw:make-model` will automatically generate and inject this into your Base Controller!)*
+
+#### Form Requests (Validation)
+```shell
+php artisan jw:make-request StorePerson --module=Person
 ```
 
-Alternatively, you may overwrite the `newFactory` method on your model to return an instance of the model's corresponding factory directly:
+#### Queued Jobs
+```shell
+php artisan jw:make-job ProcessImport --module=Person
+```
 
-```php
-use App\Modules\Person\Database\Factories\PersonFactory;
+#### Events & Listeners
+```shell
+php artisan jw:make-event PersonCreated --module=Person
+php artisan jw:make-listener SendWelcomeEmail --module=Person
+```
 
-/**
- * Create a new factory instance for the model.
- */
-protected static function newFactory()
-{
-    return PersonFactory::new();
-}
+#### Policies & Authorization
+```shell
+php artisan jw:make-policy Person --module=Person
+```
+
+#### Custom Validation Rules
+```shell
+php artisan jw:make-rule ValidPhoneNumber --module=Person
+```
+
+#### Model Observers
+```shell
+php artisan jw:make-observer Person --module=Person
 ```
 
 ---
@@ -217,17 +225,27 @@ php artisan jw:check
 ```
 
 ### 📂 Folder Structure
-Generated modules follow this PSR-4 compliant structure automatically:
+Generated modules seamlessly follow a strict, PSR-4 compliant Domain-Driven structure automatically:
 
 ```text
 app/Modules/
 └── Person/
     ├── Controllers/         # Module-specific Controllers
+    ├── Events/              # Event dispatchers (v2.5.0+)
+    ├── Jobs/                # Queued Background Jobs (v2.5.0+)
+    ├── Listeners/           # Event Listeners (v2.5.0+)
     ├── Models/              # Eloquent Models
-    ├── Services/            # Business Logic / Service Layer
+    ├── Observers/           # Model Observers (v2.5.0+)
+    ├── Policies/            # Authorization Policies (v2.5.0+)
     ├── Providers/           # Module Service Provider (Auto-registered)
+    ├── Requests/            # Form Validation Requests (v2.5.0+)
+    ├── Resources/           # API JSON Resources (v2.4.0+)
+    ├── Rules/               # Custom Validation Rules (v2.5.0+)
+    ├── Services/            # Business Logic / Service Layer
     ├── Database/
-    │   └── Migrations/      # Module-specific Migrations
+    │   ├── Factories/       # Model Factories
+    │   ├── Migrations/      # Module-specific Migrations
+    │   └── Seeders/         # Database Seeders
     └── Routes/
         └── api.php          # Module API Routes (Prefix: api/v1/person)
 ```
