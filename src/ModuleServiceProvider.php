@@ -54,6 +54,13 @@ class ModuleServiceProvider extends ServiceProvider
       $this->publishes([
           $stubsPath => base_path('stubs/vendor/module-maker'),
       ], 'module-maker-stubs');
+
+      // Package routes fallback
+      if (File::exists(__DIR__ . '/../routes/api.php')) {
+          $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+      }
+
+      $this->bootModuleRoutes();
     }
     public function register(): void
     {
@@ -63,7 +70,9 @@ class ModuleServiceProvider extends ServiceProvider
 
         $this->registerCommands();
 
-        if (file_exists(config('module-maker.paths.modules', app_path('Modules')))) {
+        $modulesPath = config('module-maker.paths.modules', app_path('Modules'));
+
+        if (File::exists($modulesPath) && File::isDirectory($modulesPath)) {
             $this->registerModuleProviders();
         }
     }
@@ -108,6 +117,32 @@ class ModuleServiceProvider extends ServiceProvider
 
             if (class_exists($providerClass)) {
                 $this->app->register($providerClass);
+            }
+        }
+    }
+
+    /**
+     * Bootstrap routes for all modules.
+     */
+    protected function bootModuleRoutes(): void
+    {
+        $modulesPath = config('module-maker.paths.modules', app_path('Modules'));
+
+        if (!File::exists($modulesPath) || !File::isDirectory($modulesPath)) {
+            return;
+        }
+
+        $modules = array_map('basename', File::directories($modulesPath));
+
+        foreach ($modules as $moduleName) {
+            $routeFile = "{$modulesPath}/{$moduleName}/Routes/api.php";
+
+            if (File::exists($routeFile)) {
+                Route::prefix(config('module-maker.paths.api_prefix', 'api/v1'))
+                    ->middleware('api')
+                    ->group(function () use ($routeFile) {
+                        $this->loadRoutesFrom($routeFile);
+                    });
             }
         }
     }

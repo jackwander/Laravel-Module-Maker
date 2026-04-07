@@ -7,15 +7,19 @@ use Illuminate\Support\Facades\Route;
 
 class {{ class }} extends ServiceProvider
 {
+    /**
+     * Bootstrap any application services.
+     */
     public function boot(): void
     {
         $this->loadMigrationsFrom(__DIR__ . '/../Database/Migrations');
-        $this->mergeConfigFrom(__DIR__ . '/../config.php', strtolower('{{ moduleName }}'));
-        
-        if (file_exists(__DIR__ . '/../Routes/api.php')) {
-            Route::prefix(config('module-maker.paths.api_prefix', 'api/v1'))
-                ->middleware('api')
-                ->group(__DIR__ . '/../Routes/api.php');
-        }
+    }
+
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        $this->mergeConfigFrom(__DIR__ . '/../config.php', '{{ moduleNameLower }}');
     }
 }

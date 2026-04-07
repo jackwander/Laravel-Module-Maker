@@ -1,3 +1,17 @@
+# 🚀 Release v2.5.1 — Centralized Route Discovery (Regression Fix)
+
+This patch releases a critical fix for route discovery across all modules.
+
+### ✨ What’s New in v2.5.1
+
+#### 🛰️ Centralized Route Registration
+We have moved the responsibility of loading module routes from individual modules into the core package engine. This successfully resolves a regression where "older" modules (generated via previous stub versions) were failing to have their routes registered in `route:list`.
+
+#### 🛠️ Robust discovery logic
+Enhanced the module discovery engine with stricter directory validation, ensuring a smoother "zero-config" experience even in complex environments.
+
+---
+
 # 🚀 Release v2.5.0 — Domain-Driven Architecture Commands
 
 This version introduces a massive expansion of the generation ecosystem, allowing for completely isolated Domain-Driven Design architectures inside your modules.

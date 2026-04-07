@@ -95,6 +95,7 @@ class MakeModule extends Command
                 'namespace' => $namespace,
                 'class' => $providerName,
                 'moduleName' => $moduleName,
+                'moduleNameLower' => strtolower($moduleName),
             ]);
 
             $this->files->put($providerPath, $providerContent);

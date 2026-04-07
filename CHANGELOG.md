@@ -1,3 +1,10 @@
+## 2.5.1 - April 08, 2026
+
+### Fixed
+- **Centralized Route Discovery:** Moved route registration logic to the core `ModuleServiceProvider` to resolve a regression where routes in modules generated with older stubs were not being discovered.
+- **Improved Provider Stub:** Refactored the module Service Provider stub to remove redundant route loading and correctly place `mergeConfigFrom` in the `register` phase.
+- **Robust Path Resolution:** Enhanced directory existence checks during module discovery.
+
 ## 2.5.0 - April 05, 2026
 
 ### Added
