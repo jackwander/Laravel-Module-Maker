@@ -2,207 +2,191 @@
 
 namespace Jackwander\ModuleMaker\Base;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
-use GuzzleHttp\Client as GuzzleClient;
 
-// base model for eloquent repository
+class BaseService
+{
+    protected Model $entity;
 
-class BaseService{
-
-  protected $entity;
-
-  public function __construct($entity)
-  {
-      $this->entity = $entity;
-  }
-
-  public function user() {
-    return auth('api')->user();
-  }
-
-  public function filter($input, $entity = null){
-    if (!$entity) {
-      $entity = $this->entity;
-    }
-    $search = isset($input['search'])?$input['search']:null;
-    $orderBy = isset($input['orderBy'])?$input['orderBy']:[];
-    $data = $entity;
-    $first = $entity->first();
-
-    if(!$first){
-      return $data;
-    }
-    $columns = $first->getFillable();
-
-    foreach($orderBy as $key => $column){
-      $data = $data->orderBy($key,$column);
+    public function __construct(Model $entity)
+    {
+        $this->entity = $entity;
     }
 
-    if($search){
-      $data = $data->where(function ($query) use ($search,$columns){
-        foreach($columns as $column){
-          $query->orWhere($column, 'like', $search.'%');
+    /**
+     * Get the currently authenticated user for the api guard.
+     */
+    public function user()
+    {
+        return auth('api')->user();
+    }
+
+    /**
+     * Apply filters and search to the query.
+     */
+    public function filter(array $input, $entity = null): Builder
+    {
+        $query = $entity ?? $this->entity->newQuery();
+
+        $search  = $input['search'] ?? null;
+        $orderBy = $input['orderBy'] ?? [];
+        
+        // Use the model's fillable columns for searching without hitting the DB
+        $columns = $this->entity->getFillable();
+
+        foreach ($orderBy as $key => $direction) {
+            $query->orderBy($key, $direction);
         }
-      });
-    }
 
-    return $data;
-  }
-
-  public function paginateWithFilters($input){
-    $search = isset($input['search'])?$input['search']:null;
-    $page = isset($input['page'])?$input['page']:1;
-    $size = isset($input['size'])?$input['size']:10;
-    $orderBy = isset($input['orderBy'])?$input['orderBy']:[];
-    $data = $this->filter($input)->paginate($size)->appends([
-      'search' => $search,
-      'page'=> $page,
-      'size' => $size,
-    ]);
-    return $data;
-  }
-
-  public function create(array $data)
-  {
-    return $this->entity->create($data);
-  }
-
-  public function find($id)
-  {
-    return $this->entity->withoutGlobalScopes()->findOrFail($id);
-  }
-
-  public function findWithTrashed($id)
-  {
-    return $this->entity->whereId($id)->withTrashed()->first();
-  }
-
-  public function findBy($columns,$value)
-  {
-    if(is_array($columns)){
-      $query = $this->entity;
-      foreach($columns as $key => $column){
-        $query = ($key == 0)?$query->where($column,$value):$query->orWhere($column,$value);
-      }
-      return $query->get();
-    }
-
-    return $this->entity->where($columns,$value)->get();
-  }
-
-  public function findFirstBy($column,$value){
-    return $this->entity->where($column,$value)->first();
-  }
-
-  public function findForPassport($input)
-  {
-    return $this->entity
-      ->where('email', $input)
-      ->orWhere('username', $input)
-      ->first();
-  }
-
-  public function update(array $data, $identifier)
-  {
-    $entity = $this->entity->find($identifier);
-    foreach ($entity->getFillable() as $key) {
-      if (array_key_exists($key,$data)) {
-        $array[$key]=$data[$key];
-      }
-    }
-
-    if (empty($array)) {
-      return false;
-    }
-
-    foreach($array as $key => $input){
-      $entity->{$key} = $input;
-    }
-    return $entity->save();
-  }
-
-  public function all($request)
-  {
-    return $this->entity->all();
-  }
-
-  public function allWithTrashed() {
-    return $this->entity->withTrashed()->get();
-  }
-
-
-  public function delete($id)
-  {
-    return $this->entity->withoutGlobalScopes()->find($id)->delete();
-  }
-
-  public function findBySlug($slug){
-    return $this->entity->withoutGlobalScopes()->where('slug',$slug)->first();
-  }
-
-  public function forceDelete($id)
-  {
-    return $this->entity->withoutGlobalScopes()->find($id)->forceDelete();
-  }
-
-  public function firstOrCreate($data){
-    return $this->entity->firstOrCreate($data);
-  }
-
-  public function model()
-  {
-    return $this->entity;
-  }
-
-  public function updateContent($data) {
-    $data = $this->entity->findOrFail($data->id);
-    $data->touch();
-    return $data;
-  }
-
-  public function filterData($input,$data){
-    $search = isset($input['search'])?$input['search']:null;
-    $page = isset($input['page'])?$input['page']:1;
-    $size = isset($input['size'])?$input['size']:10;
-    $orderBy = isset($input['orderBy'])?$input['orderBy']:[];
-    if ($data->count()==0) {
-      return $data->paginate($size);
-    }
-    $first = $data->first();
-
-    if(!$first){
-      return $data;
-    }
-    $columns = array_keys($first->getAttributes());
-
-    foreach($columns as $key => $value){
-      if(in_array($value,['created_at','updated_at','deleted_at'])){
-        unset($columns[$key]);
-      }
-    }
-
-    foreach($orderBy as $key => $column){
-      $data = $data->orderBy($key,$column);
-    }
-
-    if($search){
-      $data = $data->where(function ($query) use ($search,$columns){
-        foreach($columns as $column){
-          $query->orWhere($column, 'like', '%'.$search.'%');
+        if ($search) {
+            $query->where(function (Builder $q) use ($search, $columns) {
+                foreach ($columns as $column) {
+                    $q->orWhere($column, 'like', $search . '%');
+                }
+            });
         }
-      });
-    }
-    return $data->paginate($size);
-  }
 
-  public function convertToClassName($prefix, $string)
-  {
-    $name = '';
-    $array = explode("_",$string);
-    foreach ($array as $value) {
-      $name = $name . ucfirst($value);
+        return $query;
     }
 
-    return "{$prefix}\\{$name}\\{$name}";
-  } 
+    /**
+     * Paginate the filtered results.
+     */
+    public function paginateWithFilters(array $input): LengthAwarePaginator
+    {
+        $size = $input['size'] ?? 10;
+
+        return $this->filter($input)->paginate($size)->appends($input);
+    }
+
+    public function create(array $data): Model
+    {
+        return $this->entity->create($data);
+    }
+
+    public function find($id): Model
+    {
+        return $this->entity->withoutGlobalScopes()->findOrFail($id);
+    }
+
+    public function findWithTrashed($id): ?Model
+    {
+        return $this->entity->where('id', $id)->withTrashed()->first();
+    }
+
+    public function findBy($columns, $value): Collection
+    {
+        $query = $this->entity->newQuery();
+
+        if (is_array($columns)) {
+            foreach ($columns as $key => $column) {
+                $query = ($key === 0) ? $query->where($column, $value) : $query->orWhere($column, $value);
+            }
+            return $query->get();
+        }
+
+        return $query->where($columns, $value)->get();
+    }
+
+    public function findFirstBy(string $column, $value): ?Model
+    {
+        return $this->entity->where($column, $value)->first();
+    }
+
+    public function findForPassport(string $input): ?Model
+    {
+        return $this->entity
+            ->where('email', $input)
+            ->orWhere('username', $input)
+            ->first();
+    }
+
+    public function update(array $data, $identifier): bool
+    {
+        $model = $this->find($identifier);
+        
+        return $model->update($data);
+    }
+
+    public function all(): Collection
+    {
+        return $this->entity->all();
+    }
+
+    public function allWithTrashed(): Collection
+    {
+        return $this->entity->withTrashed()->get();
+    }
+
+    public function delete($id): ?bool
+    {
+        return $this->find($id)->delete();
+    }
+
+    public function findBySlug(string $slug): ?Model
+    {
+        return $this->entity->withoutGlobalScopes()->where('slug', $slug)->first();
+    }
+
+    public function forceDelete($id): ?bool
+    {
+        return $this->find($id)->forceDelete();
+    }
+
+    public function firstOrCreate(array $data): Model
+    {
+        return $this->entity->firstOrCreate($data);
+    }
+
+    public function model(): Model
+    {
+        return $this->entity;
+    }
+
+    public function updateContent($data): Model
+    {
+        $model = $this->entity->findOrFail($data->id);
+        $model->touch();
+        
+        return $model;
+    }
+
+    /**
+     * Generic data filtering for collections/queries.
+     */
+    public function filterData(array $input, Builder $query): LengthAwarePaginator
+    {
+        $search  = $input['search'] ?? null;
+        $size    = $input['size'] ?? 10;
+        $orderBy = $input['orderBy'] ?? [];
+        
+        $columns = $this->entity->getFillable();
+
+        foreach ($orderBy as $key => $direction) {
+            $query->orderBy($key, $direction);
+        }
+
+        if ($search) {
+            $query->where(function (Builder $q) use ($search, $columns) {
+                foreach ($columns as $column) {
+                    $q->orWhere($column, 'like', '%' . $search . '%');
+                }
+            });
+        }
+
+        return $query->paginate($size)->appends($input);
+    }
+
+    public function convertToClassName(string $prefix, string $string): string
+    {
+        $name = collect(explode('_', $string))
+            ->map(fn($item) => ucfirst($item))
+            ->implode('');
+
+        return "{$prefix}\\{$name}\\{$name}";
+    }
 }

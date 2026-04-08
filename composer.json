@@ -1,6 +1,6 @@
 {
     "name": "jackwander/laravel-module-maker",
-    "version": "2.5.3",
+    "version": "2.6.0",
     "description": "A zero-config custom module creator for Laravel 11 projects.",
     "type": "library",
     "license": "MIT",

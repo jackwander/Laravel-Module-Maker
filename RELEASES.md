@@ -1,3 +1,19 @@
+# 🚀 Release v2.6.0 — Core Initialization & Architectural Optimization (2026-04-09)
+
+This minor feature update introduces the `jw:init` command to streamline project initialization and includes significant performance optimizations for the foundational base classes.
+
+### 🚀 New Features
+- **`jw:init` Command**: Securely bootstrap your `Core` module in `App\Modules\Core`. This command generates localized base classes that inherit from the package defaults, giving you a project-wide bridge for custom logic.
+- **Automated Configuration**: `jw:init` now automatically localizes your `config/module-maker.php` to point to your new project-specific base classes.
+
+### ⚡ Performance & Logic Improvements
+- **Zero-DB Schema Discovery**: `BaseService` now resolves model metadata (fillable columns) without hitting the database, drastically improving efficiency on large data sets.
+- **Strict Type Hinting**: Comprehensive PSR-compliant type hints and return types added across all core `Base` classes (`Service`, `Controller`, `Model`).
+- **Standardized API Responses**: `BaseApiController` now returns proper `201 Created` status codes for resource storage.
+- **Improved Inheritance Pattern**: Refactored the internal engine to promote the "Extend-and-Override" pattern for better maintainability.
+
+---
+
 # 🚀 Release v2.5.3 — Laravel 13 Support
 
 This version officially introduces support for Laravel 13, ensuring your modular architecture stays compatible with the latest ecosystem updates.

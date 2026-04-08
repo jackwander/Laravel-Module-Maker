@@ -1,0 +1,13 @@
+<?php
+
+namespace App\Modules\Core;
+
+use Jackwander\ModuleMaker\Base\BaseService as VendorBaseService;
+
+class BaseService extends VendorBaseService
+{
+    /**
+     * Add global service/repository logic here.
+     * All your module services will inherit this.
+     */
+}

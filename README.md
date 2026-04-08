@@ -11,7 +11,7 @@ This package provides a robust, modular architecture for Laravel applications. D
 | Requirement | Supported Versions |
 | :--- | :--- |
 | **PHP** | `^8.2` |
-| **Laravel** | `^11.0` |
+| **Laravel** | `^11.0 \| ^12.0 \| ^13.0` |
 
 ---
 
@@ -20,6 +20,54 @@ This package provides a robust, modular architecture for Laravel applications. D
 ```shell
 composer require jackwander/laravel-module-maker
 ```
+
+---
+
+## ⚙️ Configuration Reference
+
+To customize the package behavior, publish the configuration file:
+
+```shell
+php artisan vendor:publish --tag="config"
+```
+
+The configuration file (`config/module-maker.php`) allows you to define where your modules are stored and which base classes they should inherit from.
+
+### 📄 Default Configuration
+
+```php
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | Package Paths & Namespaces
+    |--------------------------------------------------------------------------
+    */
+    'paths' => [
+        'modules'    => base_path('app/Modules'), // Root folder for modules
+        'api_prefix' => 'api/v1',                 // URL prefix for generated routes
+    ],
+
+    'namespaces' => [
+        'root' => 'App\\Modules',                 // Base namespace for modules
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Base Classes
+    |--------------------------------------------------------------------------
+    */
+    'base_classes' => [
+        'service'        => \Jackwander\ModuleMaker\Base\BaseService::class,
+        'api_controller' => \Jackwander\ModuleMaker\Base\BaseApiController::class,
+        'model'          => \Jackwander\ModuleMaker\Base\BaseModel::class,
+    ]
+];
+```
+
+### 🛠️ Overriding Options
+- **`paths.modules`**: If you prefer a different root folder (e.g., `app/Core`), update this and ensures the `namespaces.root` matches your PSR-4 autoloading.
+- **`paths.api_prefix`**: Change the versioning or prefix of your API routes (e.g., `api/v2`).
+- **`base_classes`**: This defines the parent classes for your generated Services, Controllers, and Models. We recommend using `php artisan jw:init` to automatically set these up as local bridge classes.
 
 ---
 
@@ -38,61 +86,48 @@ Your generated modules follow this hierarchy:
 
 ---
 
-## ⚙️ Configuration & Customization
+## 🚀 Quick Start: Core Initialization
 
-By default, the generator extends the package's internal resources. To take full control of your architecture, follow these steps to use your own custom "Core" files.
-
-### 1. Publish the Configuration
-Publish the config file to your application's config directory:
+To take full control of your application's architecture, we recommend initializing a **Core Module**. This generates local base classes in your project that extend the package's internal logic, allowing you to add global methods that every future module will inherit.
 
 ```shell
-php artisan vendor:publish --provider="Jackwander\ModuleMaker\ModuleServiceProvider" --tag="config"
+php artisan jw:init
 ```
 
-### 2. Create Your Core Layer
-We recommend creating a `Core` directory to house your bridge classes at `app/Modules/Core/`. Create a file (e.g., `BaseService.php`) and extend the package's resource:
+### What this does:
+1.  **Creates Base Classes:** Generates `BaseModel`, `BaseApiController`, and `BaseService` in `app/Modules/Core/`.
+2.  **Localizes Config:** Automatically updates `config/module-maker.php` to point to these new local classes.
+3.  **Hierarchy Bridge:** Your local classes extend the vendor classes, giving you the best of both worlds: automatic package updates and full project customization.
+
+### Example: Customizing your Core
+Once initialized, you can open `app/Modules/Core/BaseService.php` and add project-wide logic:
 
 ```php
 <?php
 
 namespace App\Modules\Core;
 
-// Import the package's base resource from the vendor folder
 use Jackwander\ModuleMaker\Base\BaseService as VendorBaseService;
 
 class BaseService extends VendorBaseService 
 {
-    /**
-     * Add global methods here.
-     * Every module generated in the future will inherit these.
-     */
     public function customGlobalLogic()
     {
-        // Your custom logic here
+        // Now every generated service/repository in your project has access to this!
     }
 }
 ```
-### 3. Register Your Custom Base Classes
-Update `config/module-maker.php` to tell the generator to use your local files as the parent classes:
 
-```php
-// config/module-maker.php
+### Manual Configuration & Stubs (Optional)
+If you prefer to manually configure the system or need to edit the generation source:
 
-return [
-    'base_classes' => [
-        'service'    => \App\Modules\Core\BaseService::class,
-        'api_controller' => \App\Modules\Core\BaseApiController::class,
-        'model'      => \App\Modules\Core\BaseModel::class,
-    ]
-];
+**Config Publishing:**
+```shell
+php artisan vendor:publish --provider="Jackwander\ModuleMaker\ModuleServiceProvider" --tag="config"
 ```
 
-### The Benefit
-Now, whenever you run php artisan `jw:make-service`, the generated file will automatically extend `App\Modules\Core\BaseService` instead of the vendor class. This gives you total control over your project's architecture while still automating the boring boilerplate.
-
-### 4. Customizing Stubs
-If you want to fully modify the structure of the generated code (adding default traits, custom imports, or different PHPDoc blocks), you can publish the Stubs:
-
+**Stub Customization:**
+If you want to fully modify the structure of the generated code, you can publish the Stubs:
 ```shell
 php artisan vendor:publish --provider="Jackwander\ModuleMaker\ModuleServiceProvider" --tag="module-maker-stubs"
 ```

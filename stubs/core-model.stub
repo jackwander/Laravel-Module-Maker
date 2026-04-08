@@ -1,0 +1,13 @@
+<?php
+
+namespace App\Modules\Core;
+
+use Jackwander\ModuleMaker\Base\BaseModel as VendorBaseModel;
+
+class BaseModel extends VendorBaseModel
+{
+    /**
+     * Add global model logic here.
+     * All your module models will inherit this.
+     */
+}

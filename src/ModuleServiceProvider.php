@@ -22,7 +22,8 @@ use Jackwander\ModuleMaker\Commands\{MakeController,
   MakeRule,
   MakeObserver,
   ModuleCheck,
-  MakeSeeder};
+  MakeSeeder,
+  Init};
 
 class ModuleServiceProvider extends ServiceProvider
 {
@@ -96,6 +97,7 @@ class ModuleServiceProvider extends ServiceProvider
             ModuleCheck::class,
             MakeSeeder::class,
             MakeFactory::class,
+            Init::class,
         ]);
     }
 

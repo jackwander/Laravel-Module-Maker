@@ -1,3 +1,14 @@
+## 2.6.0 (2026-04-09)
+
+### Added
+- **`jw:init` Command:** Introduced a new command to bootstrap a local Core module, simplifying the setup process for new projects.
+- **Performance Optimization:** Refactored `Base` classes to implement Zero-DB discovery, significantly reducing overhead during application boot.
+- **Type Safety:** Added strict PSR type hinting across all core foundational classes to improve code reliability and IDE support.
+- **API Standardization:** Standardized API response codes for all persistence actions to ensure consistent behavior across modules.
+- **Documentation:** Updated the README to reflect the new initialization workflow and best practices.
+
+---
+
 ## 2.5.3 - April 09, 2026
 
 ### Added
