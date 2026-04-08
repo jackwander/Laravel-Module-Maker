@@ -49,7 +49,7 @@ class ModuleServiceProvider extends ServiceProvider
 
       $this->publishes([
           $configPath => config_path('module-maker.php'),
-      ], 'module-maker-config');
+      ], ['module-maker-config', 'config']);
 
       $this->publishes([
           $stubsPath => base_path('stubs/vendor/module-maker'),

@@ -1,3 +1,17 @@
+# 🚀 Release v2.5.2 — Config Publishing Polish
+
+This patch improves the developer experience by standardizing the `vendor:publish` workflow.
+
+### ✨ What’s New in v2.5.2
+
+#### 🛠️ Standardized Tagging
+I have updated the `ModuleServiceProvider` to support the generic `config` tag during `vendor:publish`. This aligns the package with standard Laravel conventions and resolves issues where common publishing commands were failing.
+```bash
+php artisan vendor:publish --tag="config"
+```
+
+---
+
 # 🚀 Release v2.5.1 — Centralized Route Discovery (Regression Fix)
 
 This patch releases a critical fix for route discovery across all modules.

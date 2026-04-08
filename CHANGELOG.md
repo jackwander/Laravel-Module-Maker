@@ -1,3 +1,8 @@
+## 2.5.2 - April 09, 2026
+
+### Fixed
+- **Standardized Tagging:** Added the generic `config` tag to `vendor:publish` registration, allowing the configuration to be published using standard Laravel commands like `php artisan vendor:publish --tag="config"`.
+
 ## 2.5.1 - April 08, 2026
 
 ### Fixed
