@@ -5,7 +5,7 @@ This version officially introduces support for Laravel 13, ensuring your modular
 ### ✨ What’s New in v2.5.3
 
 #### 🏗️ Laravel 13 Compatibility
-I have expanded the package constraints to include Laravel 13 (`^13.0`). This ensures that `illuminate/support`, `illuminate/console`, and `illuminate/filesystem` dependencies are correctly resolved in new Laravel 13 projects.
+I have expanded the package constraints to include Laravel 13 (`^13.0`) and updated `orchestra/testbench` to ensure full compatibility. This resolves dependency conflicts where `laravel/framework` replaces `illuminate` components.
 
 ---
 

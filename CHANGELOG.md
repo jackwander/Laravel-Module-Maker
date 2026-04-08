@@ -1,7 +1,8 @@
 ## 2.5.3 - April 09, 2026
 
 ### Added
-- **Laravel 13 Support:** Updated package dependencies for `illuminate/support`, `illuminate/console`, and `illuminate/filesystem` to support Laravel 13 (`^13.0`).
+- **Laravel 13 Support:** Updated package dependencies for `illuminate/support`, `illuminate/console`, and `illuminate/filesystem` to support Laravel 13 (`^13.0`) using standard `||` operators.
+- **Enhanced Test Suite Compatibility:** Updated `orchestra/testbench` up to `^11.0` to ensure smooth testing in Laravel 13 environments.
 
 ## 2.5.2 - April 09, 2026
 
