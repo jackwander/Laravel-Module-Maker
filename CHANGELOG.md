@@ -1,3 +1,8 @@
+## 2.5.3 - April 09, 2026
+
+### Added
+- **Laravel 13 Support:** Updated package dependencies for `illuminate/support`, `illuminate/console`, and `illuminate/filesystem` to support Laravel 13 (`^13.0`).
+
 ## 2.5.2 - April 09, 2026
 
 ### Fixed

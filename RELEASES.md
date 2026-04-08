@@ -1,3 +1,14 @@
+# 🚀 Release v2.5.3 — Laravel 13 Support
+
+This version officially introduces support for Laravel 13, ensuring your modular architecture stays compatible with the latest ecosystem updates.
+
+### ✨ What’s New in v2.5.3
+
+#### 🏗️ Laravel 13 Compatibility
+I have expanded the package constraints to include Laravel 13 (`^13.0`). This ensures that `illuminate/support`, `illuminate/console`, and `illuminate/filesystem` dependencies are correctly resolved in new Laravel 13 projects.
+
+---
+
 # 🚀 Release v2.5.2 — Config Publishing Polish
 
 This patch improves the developer experience by standardizing the `vendor:publish` workflow.
