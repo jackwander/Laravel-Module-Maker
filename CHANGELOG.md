@@ -1,4 +1,4 @@
-## 2.6.0 (2026-04-09)
+## 2.6.0 - April 09, 2026
 
 ### Added
 - **`jw:init` Command:** Introduced a new command to bootstrap a local Core module, simplifying the setup process for new projects.

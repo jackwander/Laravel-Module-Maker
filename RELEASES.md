@@ -1,4 +1,4 @@
-# 🚀 Release v2.6.0 — Core Initialization & Architectural Optimization (2026-04-09)
+# 🚀 Release v2.6.0 — Core Initialization & Architectural Optimization
 
 This minor feature update introduces the `jw:init` command to streamline project initialization and includes significant performance optimizations for the foundational base classes.
 
