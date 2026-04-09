@@ -1,3 +1,10 @@
+## 2.6.1 - April 10, 2026
+
+### Fixed
+- **Hybrid Compatibility:** Reverted strict type hints in the `Base` layer. This resolves fatal signature mismatch errors for modules that override base methods without matching strict types.
+
+---
+
 ## 2.6.0 - April 09, 2026
 
 ### Added

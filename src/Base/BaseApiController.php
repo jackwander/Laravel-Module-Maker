@@ -11,10 +11,10 @@ use Illuminate\Support\Facades\Validator;
 class BaseApiController extends Controller
 {
     protected $repository;
-    protected string $module;
+    protected $module;
     protected $resourceClass;
 
-    public function __construct($repository, string $module, $resourceClass = null)
+    public function __construct($repository, $module, $resourceClass = null)
     {
         $this->repository = $repository;
         $this->module = $module;
@@ -24,7 +24,7 @@ class BaseApiController extends Controller
     /**
      * Helper function to wrap data in a Laravel API Resource if one is defined.
      */
-    protected function toResource($data, bool $isCollection = false)
+    protected function toResource($data, $isCollection = false)
     {
         if (!$this->resourceClass || !class_exists($this->resourceClass)) {
             return $data;
@@ -35,7 +35,7 @@ class BaseApiController extends Controller
             : new $this->resourceClass($data);
     }
 
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         $data = $this->repository->paginateWithFilters($request->all());
         
@@ -45,7 +45,7 @@ class BaseApiController extends Controller
         );
     }
 
-    public function all(Request $request): JsonResponse
+    public function all(Request $request)
     {
         $data = $this->repository->all($request->all());
         
@@ -55,7 +55,7 @@ class BaseApiController extends Controller
         );
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(Request $request)
     {
         $model = $this->repository->create($request->all());
 
@@ -65,7 +65,7 @@ class BaseApiController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(Request $request, $id)
     {
         $this->repository->update($request->all(), $id);
         $fetchedModel = $this->repository->find($id);
@@ -76,7 +76,7 @@ class BaseApiController extends Controller
         ], 200);
     }
 
-    public function destroy($id): JsonResponse
+    public function destroy($id)
     {
         $item = $this->repository->find($id);
         $this->repository->delete($id);
@@ -87,7 +87,7 @@ class BaseApiController extends Controller
         ], 200);
     }
 
-    public function show($id): JsonResponse
+    public function show($id)
     {
         $data = $this->repository->find($id);
         
@@ -97,12 +97,12 @@ class BaseApiController extends Controller
         );
     }
 
-    public function relation($id, string $relation): JsonResponse
+    public function relation($id, $relation)
     {
         return response()->json($this->repository->relation($id, $relation)->toArray(), 200);
     }
 
-    public function findBySlug(string $slug): JsonResponse
+    public function findBySlug($slug)
     {
         $data = $this->repository->findBySlug($slug);
 
@@ -117,7 +117,7 @@ class BaseApiController extends Controller
         return Auth::guard('api');
     }
 
-    public function updateContent(Request $request): JsonResponse
+    public function updateContent(Request $request)
     {
         $item = $this->repository->updateContent($request);
 
@@ -127,7 +127,7 @@ class BaseApiController extends Controller
         ], 200);
     }
 
-    public function addFile(Request $request): JsonResponse
+    public function addFile(Request $request)
     {
         $item = $this->repository->addFile($request);
 
@@ -137,7 +137,7 @@ class BaseApiController extends Controller
         ], 200);
     }
 
-    public function deleteFile($id): JsonResponse
+    public function deleteFile($id)
     {
         $item = $this->repository->deleteFile($id);
 
@@ -147,7 +147,7 @@ class BaseApiController extends Controller
         ], 200);
     }
 
-    public function requestValidator(Request $request, array $data)
+    public function requestValidator(Request $request, $data)
     {
         return Validator::make($request->all(), $data);
     }

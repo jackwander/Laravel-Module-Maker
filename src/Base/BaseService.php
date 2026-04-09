@@ -10,9 +10,9 @@ use Illuminate\Support\Facades\DB;
 
 class BaseService
 {
-    protected Model $entity;
+    protected $entity;
 
-    public function __construct(Model $entity)
+    public function __construct($entity)
     {
         $this->entity = $entity;
     }
@@ -28,7 +28,7 @@ class BaseService
     /**
      * Apply filters and search to the query.
      */
-    public function filter(array $input, $entity = null): Builder
+    public function filter($input, $entity = null)
     {
         $query = $entity ?? $this->entity->newQuery();
 
@@ -56,29 +56,29 @@ class BaseService
     /**
      * Paginate the filtered results.
      */
-    public function paginateWithFilters(array $input): LengthAwarePaginator
+    public function paginateWithFilters($input)
     {
         $size = $input['size'] ?? 10;
 
         return $this->filter($input)->paginate($size)->appends($input);
     }
 
-    public function create(array $data): Model
+    public function create(array $data)
     {
         return $this->entity->create($data);
     }
 
-    public function find($id): Model
+    public function find($id)
     {
         return $this->entity->withoutGlobalScopes()->findOrFail($id);
     }
 
-    public function findWithTrashed($id): ?Model
+    public function findWithTrashed($id)
     {
         return $this->entity->where('id', $id)->withTrashed()->first();
     }
 
-    public function findBy($columns, $value): Collection
+    public function findBy($columns, $value)
     {
         $query = $this->entity->newQuery();
 
@@ -92,12 +92,12 @@ class BaseService
         return $query->where($columns, $value)->get();
     }
 
-    public function findFirstBy(string $column, $value): ?Model
+    public function findFirstBy($column, $value)
     {
         return $this->entity->where($column, $value)->first();
     }
 
-    public function findForPassport(string $input): ?Model
+    public function findForPassport($input)
     {
         return $this->entity
             ->where('email', $input)
@@ -105,49 +105,49 @@ class BaseService
             ->first();
     }
 
-    public function update(array $data, $identifier): bool
+    public function update(array $data, $identifier)
     {
         $model = $this->find($identifier);
         
         return $model->update($data);
     }
 
-    public function all(): Collection
+    public function all()
     {
         return $this->entity->all();
     }
 
-    public function allWithTrashed(): Collection
+    public function allWithTrashed()
     {
         return $this->entity->withTrashed()->get();
     }
 
-    public function delete($id): ?bool
+    public function delete($id)
     {
         return $this->find($id)->delete();
     }
 
-    public function findBySlug(string $slug): ?Model
+    public function findBySlug($slug)
     {
         return $this->entity->withoutGlobalScopes()->where('slug', $slug)->first();
     }
 
-    public function forceDelete($id): ?bool
+    public function forceDelete($id)
     {
         return $this->find($id)->forceDelete();
     }
 
-    public function firstOrCreate(array $data): Model
+    public function firstOrCreate(array $data)
     {
         return $this->entity->firstOrCreate($data);
     }
 
-    public function model(): Model
+    public function model()
     {
         return $this->entity;
     }
 
-    public function updateContent($data): Model
+    public function updateContent($data)
     {
         $model = $this->entity->findOrFail($data->id);
         $model->touch();
@@ -158,7 +158,7 @@ class BaseService
     /**
      * Generic data filtering for collections/queries.
      */
-    public function filterData(array $input, Builder $query): LengthAwarePaginator
+    public function filterData($input, $query)
     {
         $search  = $input['search'] ?? null;
         $size    = $input['size'] ?? 10;
@@ -181,7 +181,7 @@ class BaseService
         return $query->paginate($size)->appends($input);
     }
 
-    public function convertToClassName(string $prefix, string $string): string
+    public function convertToClassName($prefix, $string)
     {
         $name = collect(explode('_', $string))
             ->map(fn($item) => ucfirst($item))

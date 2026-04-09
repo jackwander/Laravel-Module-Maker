@@ -1,4 +1,16 @@
-# 🚀 Release v2.6.0 — Core Initialization & Architectural Optimization
+# 🚀 Release v2.6.1 — Hybrid Compatibility Patch (2026-04-10)
+
+This patch release addresses a strict typing regression introduced in v2.6.0 that caused fatal signature mismatch errors in existing modules.
+
+### 🐛 Bug Fixes
+- **Loosened Method Signatures**: Reverted strict argument type hints and return type declarations across all core `Base` classes (`Service`, `Controller`, `Model`). This ensures that legacy modules can safely extend the core package without needing to update their method signatures to match the new PSR-strict standards.
+
+### ⚡ Performance & Logic
+- **Optimizations Maintained**: All internal performance improvements, including the **Zero-DB Schema Discovery** and optimized repository queries, remain active and functional under the loosened signatures.
+
+---
+
+# 🚀 Release v2.6.0 — Core Initialization & Architectural Optimization (2026-04-09)
 
 This minor feature update introduces the `jw:init` command to streamline project initialization and includes significant performance optimizations for the foundational base classes.
 

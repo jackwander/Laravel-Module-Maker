@@ -13,13 +13,13 @@ class BaseModel extends Model
 
     protected $hidden = ['created_at', 'updated_at', 'deleted_at'];
 
-    public function scopeWithHas(Builder $query, string $relation, \Closure $constraint): Builder
+    public function scopeWithHas($query, $relation, $constraint)
     {
         return $query->whereHas($relation, $constraint)
                      ->with([$relation => $constraint]);
     }
 
-    public function getImageAddressAttribute(): ?string
+    public function getImageAddressAttribute()
     {
         if ($this->image && Storage::exists('public/' . str_replace('storage/', '', $this->image))) {
             return asset($this->image);
