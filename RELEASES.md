@@ -1,3 +1,13 @@
+# 🚀 Release v2.6.2 — Update Logic Sanitization (2026-04-26)
+
+This patch improves the robustness of the `update` method in `BaseService` by adding explicit data sanitization.
+
+### 🛠️ Improvements
+- **Explicit Data Sanitization**: The `BaseService::update()` method now manually filters the input `$data` against the model's `fillable` columns before persistence. This provides an additional layer of security and ensures only valid fields are processed during updates.
+- **Refined Update Fetching**: Optimized the internal model resolution within the update workflow to ensure smoother execution across varying model configurations.
+
+---
+
 # 🚀 Release v2.6.1 — Hybrid Compatibility Patch (2026-04-10)
 
 This patch release addresses a strict typing regression introduced in v2.6.0 that caused fatal signature mismatch errors in existing modules.

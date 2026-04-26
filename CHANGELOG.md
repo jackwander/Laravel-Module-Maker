@@ -1,3 +1,10 @@
+## 2.6.2 - April 26, 2026
+
+### Fixed
+- **Data Sanitization:** Improved the `update` method in `BaseService` to explicitly filter input data against the model's fillable columns, preventing unwanted fields from reaching the database.
+
+---
+
 ## 2.6.1 - April 10, 2026
 
 ### Fixed

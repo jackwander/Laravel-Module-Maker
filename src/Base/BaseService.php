@@ -107,9 +107,15 @@ class BaseService
 
     public function update(array $data, $identifier)
     {
-        $model = $this->find($identifier);
-        
-        return $model->update($data);
+        $model = $this->entity->find($identifier);
+        $columns = $model->getFillable();
+        $form = [];
+        foreach ($columns as $column) {
+          if (array_key_exists($column,$data)) {
+            $form[$column] = $data[$column];
+          }
+        }
+        return $model->update($form);
     }
 
     public function all()
