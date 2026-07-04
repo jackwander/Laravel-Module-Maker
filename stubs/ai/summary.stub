@@ -1,0 +1,27 @@
+# Module Maker — AI Context Summary
+
+This Laravel {{ laravelVersion }} application (PHP {{ phpVersion }}) uses **jackwander/laravel-module-maker v{{ packageVersion }}**.
+Features live in isolated modules under `{{ modulesPath }}` using the `{{ rootNamespace }}\{Module}` namespace.
+{{ bridgeNote }}
+
+## Non-negotiable rules
+
+1. NEVER hand-create files inside modules — always use the `jw:*` generators (or the `run_generator` MCP tool). They enforce naming, namespaces, and parent classes.
+2. New feature = `php artisan jw:make-module {Name}`, then `php artisan jw:make-model {Model} --module={Name} -a` per entity.
+3. Models: singular StudlyCase. Tables: plural snake_case. Seeders/Factories/Policies/Observers: singular + suffix.
+4. Business logic belongs in the module Service (repository-style, extends the configured BaseService) — controllers stay thin.
+5. Validation via FormRequests (`jw:make-request`); API output via Resources (`jw:make-resource`).
+6. Module routes live in `{Module}/Routes/api.php` and are auto-prefixed `{{ apiPrefix }}/{module}` — never edit the app-level route files for module endpoints.
+7. Maintain `$fillable` on every model — services use it for update filtering and search columns.
+8. Tooling detected: {{ toolingLine }}. Run `{{ testCommand }}` before finishing any task.
+
+## Generators
+
+{{ generatorTable }}
+
+## Project state
+
+{{ modulesLine }}
+
+Live state and deeper docs: MCP server `module-maker` (`list_modules`, `module_structure`, `generator_info`, `get_guidelines`).
+Full context files: `.ai/architecture.md`, `.ai/conventions.md`, `.ai/generators.md`, `.ai/ai-rules.md`, `.ai/workflow.md`.

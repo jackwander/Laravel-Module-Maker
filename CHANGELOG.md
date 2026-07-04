@@ -1,3 +1,14 @@
+## 2.7.0 - July 04, 2026
+
+### Added
+- **AI Context Generator:** New `jw:ai:init` command generates structured AI assistant context in `.ai/` (architecture, conventions, generator catalog, AI rules, module inventory, workflow, tooling, prompt templates) plus platform entry files for Claude Code, Cursor, GitHub Copilot, and Codex/AGENTS.md. Supports `--depth=full|compressed|summary`, `--dry-run`, `--no-mcp`, and CI-safe `--refresh`.
+- **MCP Server:** New `jw:mcp` command runs a zero-dependency stdio MCP (Model Context Protocol) server exposing `application_info`, `list_modules`, `module_structure`, `list_generators`, `generator_info`, `get_guidelines`, and `run_generator` tools, so AI assistants scaffold through the package's own generators.
+- **Configuration:** New `config/module-ai.php` for platforms, context depth, section toggles, ignored modules, organization guidelines (`.ai/custom/`), MCP options, and custom platform adapters.
+- **Managed Blocks:** Shared files (`CLAUDE.md`, `AGENTS.md`, `.github/copilot-instructions.md`) are updated via marker-delimited managed regions and `.mcp.json`-style files via deep merge — user content is never clobbered and re-runs are idempotent.
+- **Live Command Catalog:** Generator documentation is reflected from registered `jw:*` command signatures at generation time, so docs never drift from code.
+
+---
+
 ## 2.6.2 - April 26, 2026
 
 ### Fixed

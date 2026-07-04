@@ -1,0 +1,41 @@
+<?php
+
+return [
+    /*
+    |--------------------------------------------------------------------------
+    | AI Context Configuration (localized by jw:ai:init)
+    |--------------------------------------------------------------------------
+    |
+    | Platforms and depth are used by `php artisan jw:ai:init --refresh`.
+    | See the package config for all available options.
+    |
+    */
+    'platforms' => [{{ platforms }}],
+
+    'depth' => '{{ depth }}',
+
+    'output_path' => null,
+
+    'sections' => [
+        'architecture' => true,
+        'conventions' => true,
+        'generators' => true,
+        'ai_rules' => true,
+        'modules' => true,
+        'workflow' => true,
+        'tooling' => true,
+        'prompts' => true,
+    ],
+
+    'ignored_modules' => [],
+
+    'custom_guidelines_path' => null,
+
+    'mcp' => [
+        'enabled' => true,
+        'allow_run_generator' => true,
+        'expose_database_schema' => false,
+    ],
+
+    'adapters' => [],
+];

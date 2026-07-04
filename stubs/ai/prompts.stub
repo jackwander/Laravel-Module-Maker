@@ -1,0 +1,53 @@
+# Reusable Prompt Templates
+
+Copy, fill the blanks, paste into your AI assistant.
+
+## New module, full stack
+
+```
+Create a new {Module} module following Laravel Module Maker conventions.
+
+Entities: {Entity1}, {Entity2}.
+For each entity: model with fields ({field:type, ...}), migration, service,
+controller, API resource, Store/Update form requests, factory, seeder.
+
+Constraints:
+- Scaffold everything with jw:* generators (run_generator MCP tool); never create files by hand.
+- Follow .ai/ai-rules.md. Do not create files outside {{ modulesPath }}/{Module}.
+- Populate $fillable, write migration columns, validation rules, and resource fields.
+- Write feature tests for the CRUD endpoints and run {{ testCommand }}.
+```
+
+## Add an endpoint to an existing module
+
+```
+In the {Module} module, add {description of endpoint}.
+
+Constraints:
+- Inspect the module first (module_structure tool) and extend the existing
+  {Entity}Service — do not create a parallel service.
+- Route goes in {Module}/Routes/api.php; validation in a FormRequest;
+  output through {Entity}Resource.
+- Add a feature test; run {{ testCommand }}.
+```
+
+## Add a background process
+
+```
+In the {Module} module, create a queued job {JobName} that {behavior},
+triggered by a {EntityEvent} event.
+
+Constraints:
+- jw:make-job, jw:make-event, jw:make-listener — all with --module={Module}.
+- Wire the listener to the event in the module ServiceProvider.
+- Test the listener dispatches the job.
+```
+
+## Review my changes
+
+```
+Review the diff against .ai/ai-rules.md and .ai/conventions.md.
+Flag: hand-created files that should have used generators, logic in
+controllers that belongs in services, missing FormRequests/Resources,
+namespace violations, missing $fillable entries, missing tests.
+```

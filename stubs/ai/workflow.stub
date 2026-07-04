@@ -1,0 +1,55 @@
+# Feature Development Workflow
+
+The canonical path from idea to production-ready module feature.
+
+## 1. Module
+
+```shell
+php artisan jw:make-module {Module}
+```
+
+Creates the skeleton (Provider, Routes, starter Controller/Model/Service). Skip if the module already exists — check `.ai/modules.md` or MCP `list_modules`.
+
+## 2. Entities (full stack per model)
+
+```shell
+php artisan jw:make-model {Entity} --module={Module} -a
+```
+
+`-a` generates Model + Migration + Service + Controller + Resource. Use individual flags (`-m -s -c -r`) for a subset.
+
+## 3. Fill in the blanks
+
+1. Migration: define columns in `{Module}/Database/Migrations/`.
+2. Model: populate `$fillable` (required — drives service search and update filtering).
+3. FormRequests: `php artisan jw:make-request Store{Entity} --module={Module}` + rules.
+4. Resource: shape the API output in `Resources/{Entity}Resource.php`.
+5. Routes: `Routes/api.php` already has resource routes; add custom endpoints there only.
+
+## 4. Supporting pieces (as needed)
+
+```shell
+php artisan jw:make-seeder {Entity} --module={Module}
+php artisan jw:make-factory {Entity} --module={Module}
+php artisan jw:make-policy {Entity} --module={Module}
+php artisan jw:make-observer {Entity} --module={Module}
+php artisan jw:make-event {Entity}Created --module={Module}
+php artisan jw:make-listener Handle{Entity}Created --module={Module}
+php artisan jw:make-job Process{Thing} --module={Module}
+```
+
+## 5. Verify
+
+```shell
+php artisan jw:check      # module discovery health
+php artisan migrate
+{{ testCommand }}
+```
+
+Write feature tests hitting the module endpoints (prefix `{{ apiPrefix }}/{module}`). Use the module factory for test data.
+
+## Modifying an existing feature
+
+- Locate the module first (MCP `module_structure`), read its Service before adding methods.
+- Schema change = new migration in the module — never edit an existing migration that may have run.
+- New endpoint = route entry + controller method (or service method) + FormRequest + Resource + test.

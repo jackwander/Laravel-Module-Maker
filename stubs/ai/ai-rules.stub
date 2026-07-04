@@ -1,0 +1,35 @@
+# Rules for AI Assistants
+
+When generating code in this repository, follow these rules without exception.
+
+## Scaffolding
+
+- ALWAYS create module files through the `jw:*` generators (or the `run_generator` MCP tool) — never write module boilerplate by hand.
+- NEVER create feature files outside `{{ modulesPath }}/{Module}`; app-level `app/Http`, `app/Models`, `routes/*.php` are off-limits for module features.
+- Before creating anything, check the existing module inventory (`.ai/modules.md` or MCP `list_modules`) — never duplicate a service, model, or domain that already exists.
+- Use `{{ rootNamespace }}\{Module}\{Component}` namespaces exactly; the generators produce them correctly.
+
+## Code placement
+
+- Business logic goes in the module Service. Controllers only wire request -> service -> response.
+- Validation goes in FormRequests (`jw:make-request`), not inline `$request->validate()` calls in controllers.
+- API responses go through API Resources (`jw:make-resource`) when shaping output.
+- Authorization goes in Policies (`jw:make-policy`); model lifecycle side effects in Observers (`jw:make-observer`).
+- Cross-module communication happens via Events/Listeners — never import another module's Service directly without a deliberate decision.
+
+## Database
+
+- Migrations belong in the module (`jw:make-migration --module=`), seeders and factories likewise.
+- Maintain `$fillable` on every model — BaseService filters update input against it and uses it for search.
+- Tables are plural snake_case; models singular StudlyCase; primary keys are UUIDs.
+
+## Architecture guards
+
+- Never modify anything in `vendor/`. Project-wide behavior changes go in the `App\Modules\Core` bridge classes.
+- Never add strict parameter/return types when overriding Base class public methods — loose signatures are a deliberate compatibility contract.
+- Respect published stub overrides in `stubs/vendor/module-maker/` when reasoning about what generated code looks like.
+
+## Quality
+
+{{ toolingRules }}
+{{ customGuidelines }}

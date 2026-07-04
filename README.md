@@ -253,6 +253,31 @@ php artisan jw:make-controller CivilStatus --module=Person
 php artisan jw:make-service CivilStatus --module=Person
 ```
 
+### 🤖 AI Context & MCP Server (v2.7.0+)
+
+Make your AI coding assistant (Claude Code, Cursor, Copilot, Codex, and any MCP-compatible client) understand your modular architecture before it writes a single line:
+
+```shell
+php artisan jw:ai:init
+```
+
+**What this does:**
+1. **Canonical context (`.ai/`)**: architecture, naming conventions, the complete `jw:*` generator catalog (reflected live from the registered commands), AI rules, module inventory, feature workflow, detected tooling (Pint/PHPStan/Pest/...), and reusable prompt templates.
+2. **Platform entry files**: `CLAUDE.md` managed block + `.mcp.json` (Claude Code), `.cursor/rules/module-maker.mdc` + `.cursor/mcp.json` (Cursor), `.github/copilot-instructions.md` (Copilot), `AGENTS.md` (Codex & AGENTS.md-compatible tools). Shared files use marker-delimited managed blocks — your own content is never touched.
+3. **MCP registration**: registers the built-in `php artisan jw:mcp` server so assistants can query live state (`list_modules`, `module_structure`, `generator_info`, `get_guidelines`) and — the best part — scaffold through your real generators via `run_generator` (dry-run first) instead of hand-writing boilerplate.
+
+**Options:**
+
+- `--platforms=claude,cursor,copilot,codex` : skip the interactive picker.
+- `--depth=full|compressed|summary` : trade context richness for token cost.
+- `--refresh` : non-interactive regeneration using the saved `config/module-ai.php` (run after adding modules or tooling; CI-safe).
+- `--dry-run` : print the file plan without writing.
+- `--no-mcp` : skip MCP registration.
+
+Customize via `config/module-ai.php` (sections, ignored modules, custom adapters) and drop organization-specific standards into `.ai/custom/*.md` — they are merged into the generated AI rules on every run. Disable generator execution by assistants with `module-ai.mcp.allow_run_generator => false`.
+
+---
+
 ### ✅ System Verification
 I have included a health-check command to ensure your environment is correctly configured and that all modules are being detected by the system:
 ```shell

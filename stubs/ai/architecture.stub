@@ -1,0 +1,57 @@
+# Project Architecture
+
+## Overview
+
+This application uses **jackwander/laravel-module-maker v{{ packageVersion }}** (Laravel {{ laravelVersion }}) for a zero-config modular architecture. Each business domain is an isolated, portable module under `{{ modulesPath }}`.
+
+## Inheritance chain (bridge pattern)
+
+```
+Vendor Base (read-only, in vendor/)          App Core bridge (editable)          Module class
+Jackwander\ModuleMaker\Base\BaseService  ->  App\Modules\Core\BaseService    ->  PersonService
+Jackwander\ModuleMaker\Base\BaseApiController -> App\Modules\Core\BaseApiController -> PersonsController
+Jackwander\ModuleMaker\Base\BaseModel    ->  App\Modules\Core\BaseModel      ->  Person
+```
+
+Bridge status: {{ bridgeStatus }}
+
+Configured base classes (from `config/module-maker.php`):
+
+- service: `{{ serviceBase }}`
+- api_controller: `{{ controllerBase }}`
+- model: `{{ modelBase }}`
+
+## Module directory layout
+
+```
+{{ modulesPath }}/
+└── {Module}/
+    ├── Controllers/         # thin CRUD controllers (parent provides index/store/show/update/destroy)
+    ├── Models/              # Eloquent models, UUID keys, SoftDeletes
+    ├── Services/            # business logic / repository layer
+    ├── Providers/           # {Module}ServiceProvider (auto-registered)
+    ├── Requests/            # FormRequest validation
+    ├── Resources/           # API JSON Resources
+    ├── Policies/ Rules/     # authorization + validation rules
+    ├── Events/ Listeners/ Jobs/ Observers/
+    ├── Database/
+    │   ├── Migrations/  Seeders/  Factories/
+    └── Routes/
+        └── api.php          # auto-prefixed {{ apiPrefix }}/{module}
+```
+
+## Boot sequence & discovery
+
+1. The package `ModuleServiceProvider` registers all `jw:*` commands and merges config.
+2. Every directory in `{{ modulesPath }}` is discovered; its `{Module}ServiceProvider` is registered automatically (cached forever outside local/testing).
+3. Every module `Routes/api.php` is loaded under the `{{ apiPrefix }}` prefix with the `api` middleware group.
+4. Factories resolve via the module namespace convention (`{{ rootNamespace }}\{Module}\Database\Factories\{Model}Factory`).
+
+No manual registration is ever needed — creating the files in the right place (via generators) is sufficient.
+
+## Runtime base class behavior
+
+- **BaseService**: repository-style CRUD (`create`, `find`, `findBy`, `update`, `delete`, `all`), search/filter/pagination driven by the model's `$fillable` (zero DB introspection), soft-delete aware helpers.
+- **BaseApiController**: JSON CRUD responses with consistent status codes (201 on store), optional API Resource wrapping when a Resource class is injected.
+- **BaseModel**: UUID primary keys (`HasUuids`), hides `created_at/updated_at/deleted_at` from JSON.
+- Base class public methods intentionally have loose signatures — do NOT add strict parameter/return types when overriding them.

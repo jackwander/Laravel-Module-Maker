@@ -2,3 +2,6 @@ composer.lock
 vendor
 /.phpintel
 /.idea
+/.claude
+CLAUDE.md
+/docs

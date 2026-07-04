@@ -23,7 +23,9 @@ use Jackwander\ModuleMaker\Commands\{MakeController,
   MakeObserver,
   ModuleCheck,
   MakeSeeder,
-  Init};
+  Init,
+  AiInit,
+  McpServe};
 
 class ModuleServiceProvider extends ServiceProvider
 {
@@ -53,6 +55,10 @@ class ModuleServiceProvider extends ServiceProvider
       ], ['module-maker-config', 'config']);
 
       $this->publishes([
+          dirname(__DIR__) . '/config/module-ai.php' => config_path('module-ai.php'),
+      ], ['module-ai-config', 'config']);
+
+      $this->publishes([
           $stubsPath => base_path('stubs/vendor/module-maker'),
       ], 'module-maker-stubs');
 
@@ -68,6 +74,12 @@ class ModuleServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             dirname(__DIR__) . '/config/module-maker.php', 'module-maker'
         );
+
+        $this->mergeConfigFrom(
+            dirname(__DIR__) . '/config/module-ai.php', 'module-ai'
+        );
+
+        $this->app->singleton(\Jackwander\ModuleMaker\AI\AiPlatformRegistry::class);
 
         $this->registerCommands();
 
@@ -98,6 +110,8 @@ class ModuleServiceProvider extends ServiceProvider
             MakeSeeder::class,
             MakeFactory::class,
             Init::class,
+            AiInit::class,
+            McpServe::class,
         ]);
     }
 

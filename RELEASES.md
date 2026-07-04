@@ -1,3 +1,35 @@
+# 🚀 Release v2.7.0 — AI Context Generator & MCP Server (2026-07-04)
+
+This release makes Laravel Module Maker AI-native. One command teaches any modern AI coding assistant your modular architecture — and gives it live tools to scaffold correctly, every time.
+
+### 🚀 New Features
+
+#### 🤖 `jw:ai:init` — AI Context Generator
+Run a single command and get a complete, structured AI context for your project:
+
+```bash
+php artisan jw:ai:init
+```
+
+- Generates canonical guidelines in `.ai/` — architecture, naming conventions, the full generator catalog, AI rules, module inventory, feature workflow, detected tooling, and reusable prompt templates.
+- Writes platform entry files for **Claude Code** (`CLAUDE.md` + `.mcp.json`), **Cursor** (`.cursor/rules` + `.cursor/mcp.json`), **GitHub Copilot** (`.github/copilot-instructions.md`), and the **AGENTS.md** standard (Codex, Gemini CLI, and friends).
+- Auto-detects your environment: Laravel/PHP versions, Pint, PHPStan, Psalm, Rector, Pest/PHPUnit, Sail, Docker, CI — and adapts the generated rules accordingly.
+- Choose your context size with `--depth=full|compressed|summary`, preview with `--dry-run`, and keep everything current with the CI-safe `--refresh`.
+- Shared files are updated through marker-delimited **managed blocks** — your own content is never touched, and re-runs are fully idempotent.
+
+#### 🔌 `jw:mcp` — Zero-Dependency MCP Server
+A built-in Model Context Protocol server (stdio JSON-RPC, no new composer dependencies) that AI assistants query live:
+
+- `list_modules`, `module_structure`, `application_info` — real project state, never stale.
+- `list_generators`, `generator_info` — the command catalog reflected straight from the registered `jw:*` signatures.
+- `get_guidelines` — any guideline topic rendered on demand at the depth the model needs.
+- `run_generator` — the headline: assistants execute your actual generators (with dry-run preview) instead of hand-writing boilerplate, so conventions are enforced by construction. Disable anytime via `module-ai.mcp.allow_run_generator`.
+
+#### ⚙️ `config/module-ai.php`
+Full control over platforms, depth, section toggles, ignored modules, organization coding standards (drop markdown into `.ai/custom/`), and custom platform adapters — new AI tools plug in without touching package internals.
+
+---
+
 # 🚀 Release v2.6.2 — Update Logic Sanitization (2026-04-26)
 
 This patch improves the robustness of the `update` method in `BaseService` by adding explicit data sanitization.
