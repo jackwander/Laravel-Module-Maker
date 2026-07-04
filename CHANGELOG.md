@@ -100,6 +100,11 @@
 - Refactored Heredoc templates to remove unwanted leading indentation in generated files.
 - Improved terminal output with better coloring and icons (🌱).
 
+## 2.1.1 - February 05, 2026 (Thursday)
+
+### Fixed
+- **Dependency Constraints:** Updated dependencies to support Laravel 11/12 and resolve a `laravel/framework` conflict.
+
 ## 2.1.0 - February 05, 2026 (Thursday)
 ### Added
 * **Configurable Inheritance**: Introduced config/module-maker.php allowing developers to define custom base classes for Models, Services, and Controllers.

@@ -169,12 +169,31 @@ Added foundational support and basic feature tests using Orchestra Testbench and
 
 ---
 
+# 🚀 Release v2.1.1 — Laravel 11/12 Dependency Fix (2026-02-05)
+
+This patch resolves a framework dependency conflict.
+
+### 🐛 Bug Fixes
+- **Dependency Constraints**: Updated package dependencies to correctly support both Laravel 11 and Laravel 12, fixing a `laravel/framework` conflict that blocked installation on Laravel 12 projects.
+
+---
+
 # 🚀 Release v2.1.0 — Architecture Bridge & Vendor Config
 
 ### ✨ What’s New in v2.1.0
 * **Configurable Inheritance:** Introduced `config/module-maker.php` to define explicit routing structures for base models, base controllers, and base services! 
 * **Vendor Config Publishing:** Supported `vendor:publish` workflows to natively override root configurations.
 * **Bridge Architecture:** Generators were rebuilt to seamlessly read the newly published config, giving developers the ability to abstract standard endpoints into "App Core" bridge layers without editing internal logic.
+
+---
+
+# 🚀 Release v2.0.2 — Production Metadata Polish (2026-02-05)
+
+A small follow-up to the v2.0.0 Zero-Config milestone.
+
+### 🛠️ Improvements
+- **Package Metadata**: Refined `composer.json` metadata and dependencies for production readiness.
+- **Documentation**: Cleaned up the README and release notes for the 2.0.x line.
 
 ---
 
@@ -231,3 +250,19 @@ I built an engine that now automatically scans and registers:
 composer require jackwander/laravel-module-maker
 php artisan jw:check
 ```
+
+---
+
+# 📜 Legacy Releases (v1.x)
+
+Compact history of the pre-2.0 line. All v1.x releases used the root `Modules\` namespace (replaced by `App\Modules` in v2.0.0).
+
+- **v1.2** (2026-02-05) — Added `--service` (`-s`), `--controller` (`-c`), and `--all` (`-a`) flags to `jw:make-model`; enforced strict `snake_case` for model variables.
+- **v1.1.1 – v1.1.3** (2025-04-16) — Removed the hard Illuminate requirement; added `findForPassport` support.
+- **v1.1.0** (2024-11-13) — Stopped applying SoftDeletes by default.
+- **v1.0.6 – v1.0.9** (2024-10-09) — Made Controller, Model, and Service commands individually available; fixed missing stub variables; removed a stray artisan command.
+- **v1.0.5** (2024-09-13) — Introduced the Controller/Model/Service commands; fixed newline spacing in generated files.
+- **v1.0.3 – v1.0.4** (2024-08-31) — Fixed the migration `--table` flag; improved migration spacing and comments.
+- **v1.0.2** (2024-08-31) — Fixed Migration/Model/Controller generation dependencies.
+- **v1.0.1** (2024-08-30) — Added migrations scoped to a specific module; improved MakeModule model content.
+- **v1.0.0** (2024-08-30) — Initial release.
