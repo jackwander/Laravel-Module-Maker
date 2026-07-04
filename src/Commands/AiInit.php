@@ -105,27 +105,31 @@ class AiInit extends Command
 
     protected function askPlatforms(AiPlatformRegistry $registry): array
     {
-        $labels = [];
+        // Associative choices (name => label): Symfony renders the label but
+        // returns the platform key, and its multiselect default is resolved by
+        // key — an indexed list here would trip writePrompt's $choices[$key]
+        // lookup and warn "Undefined array key".
+        $choices = [];
         $detected = [];
 
         foreach ($registry->names() as $name) {
             $adapter = $registry->get($name);
-            $labels[$adapter->label()] = $name;
+            $choices[$name] = $adapter->label();
 
             if ($adapter->detected()) {
-                $detected[] = $adapter->label();
+                $detected[] = $name;
             }
         }
 
         $chosen = $this->choice(
             'Which AI platforms should be configured?',
-            array_keys($labels),
-            $detected ? implode(',', $detected) : array_key_first($labels),
+            $choices,
+            $detected ? implode(',', $detected) : array_key_first($choices),
             null,
             true
         );
 
-        return array_values(array_map(fn ($label) => $labels[$label], (array) $chosen));
+        return array_values((array) $chosen);
     }
 
     protected function persistConfig(array $platforms, Depth $depth): void

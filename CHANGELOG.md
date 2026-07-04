@@ -1,3 +1,10 @@
+## 2.7.1 - July 05, 2026
+
+### Fixed
+- **`jw:ai:init` interactive picker:** Selecting platforms via the prompt (without `--platforms`) crashed with `Undefined array key "Claude Code (CLAUDE.md + .mcp.json)"`. The choice list now uses an associative `name => label` map so Symfony resolves the multiselect default by key instead of by label.
+
+---
+
 ## 2.7.0 - July 04, 2026
 
 ### Added

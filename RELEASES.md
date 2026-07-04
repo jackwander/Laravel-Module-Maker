@@ -1,3 +1,23 @@
+# 🐛 Release v2.7.1 — Interactive Picker Fix (2026-07-05)
+
+A quick follow-up to v2.7.0. If you ran `jw:ai:init` without the `--platforms` flag and picked platforms from the interactive prompt, the command blew up with `Undefined array key "Claude Code (CLAUDE.md + .mcp.json)"` before writing a thing. This release makes the picker work as intended.
+
+### 🐛 Bug Fixes
+
+- **`jw:ai:init` interactive selection**: The platform prompt built its choices as a plain list keyed by numeric index, then handed Symfony the human-readable labels as the multiselect default. Symfony resolves multiselect defaults *by choice key*, so it tried to look those labels up as keys and failed. The picker now uses an associative `name => label` map — Symfony shows the friendly label, resolves the default by key, and hands back the platform name directly. As a bonus, you can now type `claude` / `cursor` at the prompt instead of the full label.
+
+  ```bash
+  php artisan jw:ai:init
+  # → Which AI platforms should be configured? [claude]:
+  #   [claude ] Claude Code (CLAUDE.md + .mcp.json)
+  #   [cursor ] Cursor (.cursor/rules + .cursor/mcp.json)
+  #   ...
+  ```
+
+  Passing `--platforms=claude,cursor` was never affected. Added a regression test covering the interactive path, which previously had no coverage.
+
+---
+
 # 🚀 Release v2.7.0 — AI Context Generator & MCP Server (2026-07-04)
 
 This release makes Laravel Module Maker AI-native. One command teaches any modern AI coding assistant your modular architecture — and gives it live tools to scaffold correctly, every time.

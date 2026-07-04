@@ -115,4 +115,26 @@ class AiInitTest extends TestCase
         $this->assertSame(1, $exit);
         $this->assertFalse(File::exists(base_path('.ai/summary.md')));
     }
+
+    public function test_interactive_picker_maps_selection_to_platform()
+    {
+        // Regression: the picker used an indexed choice list with label-valued
+        // defaults, which tripped Symfony's writePrompt into "Undefined array
+        // key <label>". Selecting a platform must resolve to its adapter.
+        $this->artisan('jw:ai:init')
+            ->expectsChoice(
+                'Which AI platforms should be configured?',
+                ['claude'],
+                [
+                    'claude'  => 'Claude Code (CLAUDE.md + .mcp.json)',
+                    'cursor'  => 'Cursor (.cursor/rules + .cursor/mcp.json)',
+                    'copilot' => 'GitHub Copilot (.github/copilot-instructions.md)',
+                    'codex'   => 'OpenAI Codex / AGENTS.md standard',
+                ]
+            )
+            ->assertExitCode(0);
+
+        $this->assertTrue(File::exists(base_path('.ai/summary.md')));
+        $this->assertTrue(File::exists(base_path('CLAUDE.md')));
+    }
 }
