@@ -1,3 +1,13 @@
+## 2.7.3 - July 08, 2026
+
+### Fixed
+- **Boot crash under database/Redis cache drivers:** Module discovery cached the module list via the application cache (`cache()->rememberForever('module-maker.modules', …)`). Under the `database` cache driver this issued a `select * from "cache"` query during boot, which aborted the app on any environment where the cache store wasn't ready yet — e.g. a fresh deploy before migrations run (`Database file … does not exist`). Discovery is now a plain filesystem scan with no cache or database access, honouring the package's zero-DB discovery rule.
+
+### Removed
+- **`module-maker.modules` cache entry:** No longer written or read. A directory scan is cheaper than the DB round-trip it replaced, so there is no configuration to change and no cache to clear after adding a module.
+
+---
+
 ## 2.7.2 - July 07, 2026
 
 ### Fixed

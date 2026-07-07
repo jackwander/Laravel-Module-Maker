@@ -2,7 +2,6 @@
 
 namespace Jackwander\ModuleMaker\Tests\Feature;
 
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Jackwander\ModuleMaker\ModuleServiceProvider;
 use Jackwander\ModuleMaker\Tests\TestCase;
@@ -10,52 +9,59 @@ use Jackwander\ModuleMaker\Tests\TestCase;
 class ModuleDiscoveryTest extends TestCase
 {
     /**
-     * Force the production discovery path (cached via the cache service) and
-     * ensure the modules directory exists before the provider boots.
+     * Reproduce the deploy-time environment that crashed boot: a production app
+     * whose cache is backed by the database, with no `cache` table present.
+     * Module discovery must not read the cache/DB, so boot must not query it.
      */
     public function getEnvironmentSetUp($app)
     {
         parent::getEnvironmentSetUp($app);
 
         $app['env'] = 'production';
+        $app['config']->set('cache.default', 'database');
 
         File::ensureDirectoryExists($app['path'] . '/Modules');
     }
 
     protected function tearDown(): void
     {
-        Cache::forget('module-maker.modules');
         File::deleteDirectory(app_path('Modules'));
 
         parent::tearDown();
     }
 
-    public function test_boots_outside_local_and_caches_module_list()
+    public function test_boots_in_production_under_database_cache_without_a_cache_table()
     {
-        // Deferred discovery runs during boot, so the module list is cached
-        // forever outside local/testing.
+        // Reaching this assertion means boot did not throw a QueryException from
+        // discovery hitting a database-backed cache table that does not exist.
         $this->assertTrue($this->app->environment('production'));
-        $this->assertTrue(Cache::has('module-maker.modules'));
-        $this->assertSame([], Cache::get('module-maker.modules'));
     }
 
-    public function test_register_does_not_resolve_the_cache_service()
+    public function test_discovers_modules_from_the_filesystem()
     {
-        // Regression: discovery ran inside register() and called cache() before
-        // the framework had bound the cache service, throwing
-        // "Target class [cache] does not exist". Unbinding cache reproduces that
-        // window: with discovery deferred to the booting phase, register() must
-        // not touch the cache at all.
+        File::ensureDirectoryExists(app_path('Modules/Alpha'));
+        File::ensureDirectoryExists(app_path('Modules/Beta'));
+
+        $method = new \ReflectionMethod(ModuleServiceProvider::class, 'discoverModules');
+        $method->setAccessible(true);
+        $modules = $method->invoke(new ModuleServiceProvider($this->app));
+
+        sort($modules);
+        $this->assertSame(['Alpha', 'Beta'], $modules);
+    }
+
+    public function test_register_never_resolves_the_cache_service()
+    {
+        // Guard the invariant directly: with the cache service removed,
+        // register() (which registers module providers) must not resolve it —
+        // discovery is purely filesystem-based.
         $app = $this->app;
-        $cache = $app['cache'];
+        File::ensureDirectoryExists(app_path('Modules/Gamma'));
         unset($app['cache'], $app['cache.store']);
         $this->assertFalse($app->bound('cache'));
 
         (new ModuleServiceProvider($app))->register();
 
-        // register() only queued a booting callback — cache stays untouched.
         $this->assertFalse($app->bound('cache'));
-
-        $app->instance('cache', $cache); // restore for teardown
     }
 }

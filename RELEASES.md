@@ -1,3 +1,29 @@
+# 🐛 Release v2.7.3 — Cache-Free Discovery (2026-07-08)
+
+v2.7.2 moved module discovery to the boot phase so the cache service would be bound. It turns out that wasn't enough: if your app stores its cache in the **database** (`CACHE_STORE=database`), simply *touching* the cache runs a SQL query — and on a fresh deploy, before migrations run, the database isn't there yet. The result was a boot-time crash like `Database file … does not exist` while selecting from the `cache` table. This release removes the dependency entirely.
+
+### 🐛 Bug Fixes
+
+- **No more cache/DB access during discovery**: Listing your module directories never needed the application cache. It now uses a plain `File::directories()` scan with zero external dependencies, so boot can't be taken down by an unavailable cache store — whether that's a database cache with no table yet, a fresh SQLite file, or a Redis server that's still starting.
+
+  ```php
+  // Discovery, in full — no cache(), no DB:
+  protected function discoverModules(): array
+  {
+      $path = config('module-maker.paths.modules', app_path('Modules'));
+
+      return File::isDirectory($path)
+          ? array_map('basename', File::directories($path))
+          : [];
+  }
+  ```
+
+### 🧹 Housekeeping
+
+- The `module-maker.modules` cache entry is gone. There's nothing to configure and nothing to clear after adding a module — a directory scan is faster than the DB round-trip it replaced. Added regression tests that boot under a database cache driver with no cache table and assert discovery stays filesystem-only.
+
+---
+
 # 🐛 Release v2.7.2 — Boot Crash Fix (2026-07-07)
 
 A critical fix for a boot-time crash. In some projects — particularly when another package's provider loaded first — installing Module Maker could take the whole app down with `Target class [cache] does not exist` before anything rendered. If you hit that, this release resolves it.

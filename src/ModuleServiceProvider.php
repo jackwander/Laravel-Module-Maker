@@ -83,15 +83,7 @@ class ModuleServiceProvider extends ServiceProvider
 
         $this->registerCommands();
 
-        // Discovery caches the module list via the cache service, which is not
-        // yet bound while providers are registering — calling it here throws
-        // "Target class [cache] does not exist". Defer to the container's
-        // booting phase: cache is available by then, and providers registered
-        // in a booting callback are still picked up by the normal boot loop,
-        // so their own boot() (migrations, etc.) still fires.
-        $this->app->booting(function () {
-            $this->registerModuleProviders();
-        });
+        $this->registerModuleProviders();
     }
 
     protected function registerCommands(): void
@@ -133,10 +125,13 @@ class ModuleServiceProvider extends ServiceProvider
     }
 
     /**
-     * Resolve the list of module directory names.
+     * Resolve the list of module directory names from the filesystem.
      *
-     * Cached forever outside local/testing for production performance; the
-     * cache service must be bound before this runs (see register()).
+     * Deliberately free of the cache and database. Discovery runs during the
+     * framework's register/boot phase, when the cache store — and its backing
+     * database, under the `database` cache driver — may be unavailable (e.g. a
+     * fresh deploy before migrations run). A directory scan is cheap and has no
+     * external dependencies, honouring the package's zero-DB discovery rule.
      *
      * @return array<int, string>
      */
@@ -148,13 +143,7 @@ class ModuleServiceProvider extends ServiceProvider
             return [];
         }
 
-        if ($this->app->environment('local', 'testing')) {
-            return array_map('basename', File::directories($modulesPath));
-        }
-
-        return cache()->rememberForever('module-maker.modules', function () use ($modulesPath) {
-            return array_map('basename', File::directories($modulesPath));
-        });
+        return array_map('basename', File::directories($modulesPath));
     }
 
     /**
