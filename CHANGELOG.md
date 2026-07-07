@@ -1,3 +1,13 @@
+## 2.7.2 - July 07, 2026
+
+### Fixed
+- **Boot crash — `Target class [cache] does not exist`:** Module discovery ran during the service provider's `register()` and called `cache()` before the framework had bound the cache service, crashing app boot in any project where the provider registered before the cache provider. Discovery is now deferred to the container's `booting` phase, where the cache service is available; registered module providers are still picked up by the normal boot loop.
+
+### Changed
+- **Unified module discovery:** Provider registration and route booting now share one cache-aware `discoverModules()` lookup, so the `module-maker.modules` cache covers both (previously routes re-scanned the filesystem uncached on every request).
+
+---
+
 ## 2.7.1 - July 05, 2026
 
 ### Fixed

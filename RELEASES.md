@@ -1,3 +1,24 @@
+# 🐛 Release v2.7.2 — Boot Crash Fix (2026-07-07)
+
+A critical fix for a boot-time crash. In some projects — particularly when another package's provider loaded first — installing Module Maker could take the whole app down with `Target class [cache] does not exist` before anything rendered. If you hit that, this release resolves it.
+
+### 🐛 Bug Fixes
+
+- **`Target class [cache] does not exist` on boot**: The provider discovered and registered your module providers inside `register()`, and that discovery cached the module list via `cache()`. But `register()` runs while providers are still being registered — the cache service may not be bound yet — so resolving it threw and aborted boot. Discovery now runs in the container's **booting** phase instead, where the cache service is guaranteed to be available. Module providers are still registered before the boot loop reaches them, so their own `boot()` (migrations and the like) fires exactly as before.
+
+  ```php
+  // register() no longer touches the cache — it just queues the work:
+  $this->app->booting(function () {
+      $this->registerModuleProviders();
+  });
+  ```
+
+### ⚡ Performance & Logic
+
+- **One discovery path**: Provider registration and route booting now share a single cache-aware `discoverModules()` helper. The `module-maker.modules` cache (kept forever outside `local`/`testing`) now covers route discovery too, which previously re-scanned the filesystem on every request. Added regression tests that reproduce the exact boot-time cache window.
+
+---
+
 # 🐛 Release v2.7.1 — Interactive Picker Fix (2026-07-05)
 
 A quick follow-up to v2.7.0. If you ran `jw:ai:init` without the `--platforms` flag and picked platforms from the interactive prompt, the command blew up with `Undefined array key "Claude Code (CLAUDE.md + .mcp.json)"` before writing a thing. This release makes the picker work as intended.

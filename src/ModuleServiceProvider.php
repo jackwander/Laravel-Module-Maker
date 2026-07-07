@@ -83,11 +83,15 @@ class ModuleServiceProvider extends ServiceProvider
 
         $this->registerCommands();
 
-        $modulesPath = config('module-maker.paths.modules', app_path('Modules'));
-
-        if (File::exists($modulesPath) && File::isDirectory($modulesPath)) {
+        // Discovery caches the module list via the cache service, which is not
+        // yet bound while providers are registering — calling it here throws
+        // "Target class [cache] does not exist". Defer to the container's
+        // booting phase: cache is available by then, and providers registered
+        // in a booting callback are still picked up by the normal boot loop,
+        // so their own boot() (migrations, etc.) still fires.
+        $this->app->booting(function () {
             $this->registerModuleProviders();
-        }
+        });
     }
 
     protected function registerCommands(): void
@@ -117,18 +121,9 @@ class ModuleServiceProvider extends ServiceProvider
 
     protected function registerModuleProviders(): void
     {
-        $modulesPath = config('module-maker.paths.modules', app_path('Modules'));
-
-        // Cache the discovered modules for production performance.
-        $modules = $this->app->environment('local', 'testing')
-            ? array_map('basename', File::directories($modulesPath))
-            : cache()->rememberForever('module-maker.modules', function () use ($modulesPath) {
-                return array_map('basename', File::directories($modulesPath));
-            });
-
         $baseNamespace = config('module-maker.namespaces.root', 'App\\Modules');
 
-        foreach ($modules as $moduleName) {
+        foreach ($this->discoverModules() as $moduleName) {
             $providerClass = "{$baseNamespace}\\{$moduleName}\\Providers\\{$moduleName}ServiceProvider";
 
             if (class_exists($providerClass)) {
@@ -138,19 +133,38 @@ class ModuleServiceProvider extends ServiceProvider
     }
 
     /**
+     * Resolve the list of module directory names.
+     *
+     * Cached forever outside local/testing for production performance; the
+     * cache service must be bound before this runs (see register()).
+     *
+     * @return array<int, string>
+     */
+    protected function discoverModules(): array
+    {
+        $modulesPath = config('module-maker.paths.modules', app_path('Modules'));
+
+        if (! File::isDirectory($modulesPath)) {
+            return [];
+        }
+
+        if ($this->app->environment('local', 'testing')) {
+            return array_map('basename', File::directories($modulesPath));
+        }
+
+        return cache()->rememberForever('module-maker.modules', function () use ($modulesPath) {
+            return array_map('basename', File::directories($modulesPath));
+        });
+    }
+
+    /**
      * Bootstrap routes for all modules.
      */
     protected function bootModuleRoutes(): void
     {
         $modulesPath = config('module-maker.paths.modules', app_path('Modules'));
 
-        if (!File::exists($modulesPath) || !File::isDirectory($modulesPath)) {
-            return;
-        }
-
-        $modules = array_map('basename', File::directories($modulesPath));
-
-        foreach ($modules as $moduleName) {
+        foreach ($this->discoverModules() as $moduleName) {
             $routeFile = "{$modulesPath}/{$moduleName}/Routes/api.php";
 
             if (File::exists($routeFile)) {
