@@ -1,3 +1,22 @@
+# 🧪 Release v2.7.5 — Laravel 13 in CI (2026-11-28)
+
+A maintenance release with no behaviour change. There is nothing to change in your app.
+
+### ✨ New
+
+- CI now runs the test suite against Laravel 13 (Testbench 11) on PHP 8.3, 8.4 and 8.5, so the existing Laravel 13 support claim is actually tested.
+
+### 🐛 Bug Fixes
+
+- Fixed the test run on CI: every job failed with `Could not read XML from file "--cache-directory"`. Without a PHPUnit config file, Pest generates a temporary one, but it writes that file inside an `assert()`, and the CI runners' production `php.ini` disables assertions. The repo now ships a `phpunit.xml.dist`.
+
+### 🧹 Housekeeping
+
+- Dev dependencies now allow Pest 4 (`pestphp/pest` and `pestphp/pest-plugin-laravel` `^3.0 || ^4.0`). PHP 8.2 jobs stay on Pest 3; PHP 8.3+ jobs use Pest 4. No test changes were needed.
+- The Laravel 11 CI jobs no longer switch off Composer's security-advisory blocking. Instead, they ignore only the five advisories known to affect the latest Laravel 11 release, so any new advisory fails the build.
+
+---
+
 # 🧰 Release v2.7.4 — Repo Health & CI (2026-11-28)
 
 A maintenance release with no behaviour change. There is nothing to change in your app.
