@@ -1,3 +1,24 @@
+# 🧰 Release v2.7.4 — Repo Health & CI (2026-11-28)
+
+A maintenance release with no behaviour change. There is nothing to change in your app.
+
+### ✨ New
+
+- Added SECURITY.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, and issue/PR templates.
+
+### 🐛 Bug Fixes
+
+- Fixed the CI push trigger: it targeted `main` instead of the default branch, `master`.
+
+### 🧹 Housekeeping
+
+- Updated Composer metadata with a version-neutral description, keywords, homepage, and support links.
+- Expanded CI to PHP 8.2-8.5 × Laravel 11-12 with matching Testbench versions.
+- Added Dependabot for Composer and GitHub Actions.
+- Added a Tests status badge to the README.
+
+---
+
 # 🐛 Release v2.7.3 — Cache-Free Discovery (2026-07-08)
 
 v2.7.2 moved module discovery to the boot phase so the cache service would be bound. It turns out that wasn't enough: if your app stores its cache in the **database** (`CACHE_STORE=database`), simply *touching* the cache runs a SQL query — and on a fresh deploy, before migrations run, the database isn't there yet. The result was a boot-time crash like `Database file … does not exist` while selecting from the `cache` table. This release removes the dependency entirely.

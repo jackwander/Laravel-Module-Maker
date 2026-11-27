@@ -1,7 +1,9 @@
 {
     "name": "jackwander/laravel-module-maker",
-    "version": "2.7.3",
-    "description": "A zero-config custom module creator for Laravel 11 projects.",
+    "version": "2.7.4",
+    "description": "Zero-config modular (Domain-Driven) architecture generator for Laravel 11, 12 and 13.",
+    "keywords": ["laravel", "modules", "modular", "module-generator", "artisan", "scaffolding", "ddd", "generator", "mcp"],
+    "homepage": "https://module-maker.jackwander.pro/",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -10,6 +12,10 @@
             "email": "me@jackwander.pro"
         }
     ],
+    "support": {
+        "issues": "https://github.com/jackwander/Laravel-Module-Maker/issues",
+        "source": "https://github.com/jackwander/Laravel-Module-Maker"
+    },
     "require": {
         "php": "^8.2",
         "illuminate/support": "^11.0 || ^12.0 || ^13.0",

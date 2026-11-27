@@ -1,5 +1,7 @@
 # Laravel Custom Module Creator
 
+[![Tests](https://github.com/jackwander/Laravel-Module-Maker/actions/workflows/tests.yml/badge.svg)](https://github.com/jackwander/Laravel-Module-Maker/actions/workflows/tests.yml)
+
 This package provides a robust, modular architecture for Laravel applications. Designed for consistency and maintainability, it allows you to build features in isolation within the `app/Modules` directory.
 
 > **🚀 Zero-Config:** As of v2.0.0, this package automatically handles PSR-4 autoloading, Service Provider registration, and API route discovery. No manual `composer.json` or `app.php` edits are required.

@@ -1,3 +1,21 @@
+## 2.7.4 - November 28, 2026
+
+Maintenance release; no runtime or behaviour change.
+
+### Added
+- **Community files:** SECURITY.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, and issue/PR templates.
+- **Dependabot:** Configuration for Composer and GitHub Actions.
+- **README:** Tests status badge.
+
+### Changed
+- **Composer metadata:** Version-neutral description, keywords, homepage, and support links.
+- **CI matrix:** PHP 8.2-8.5 × Laravel 11-12 with matching Testbench versions.
+
+### Fixed
+- **CI push trigger:** The workflow targeted `main` while the default branch is `master`, so it never ran on push.
+
+---
+
 ## 2.7.3 - July 08, 2026
 
 ### Fixed
