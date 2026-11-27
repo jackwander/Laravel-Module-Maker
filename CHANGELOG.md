@@ -1,3 +1,19 @@
+## 2.7.5 - November 28, 2026
+
+Maintenance release; no runtime or behaviour change.
+
+### Added
+- **CI matrix:** Laravel 13 (Testbench 11) on PHP 8.3-8.5.
+
+### Changed
+- **Dev dependencies:** `pestphp/pest` and `pestphp/pest-plugin-laravel` now allow `^3.0 || ^4.0`; Pest 4 is used on PHP 8.3+.
+- **CI Laravel 11 jobs:** Replaced the blanket `audit.block-insecure false` with an `audit.ignore` list of the five known advisories, so new advisories still fail the build.
+
+### Fixed
+- **CI test run:** Added `phpunit.xml.dist`. Without it, Pest's generated config is skipped under `zend.assertions=-1` (as on the CI runners), so every job failed with `Could not read XML from file "--cache-directory"`.
+
+---
+
 ## 2.7.4 - November 28, 2026
 
 Maintenance release; no runtime or behaviour change.
