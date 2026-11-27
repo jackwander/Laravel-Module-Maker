@@ -24,13 +24,13 @@ class ArchitectureSection implements Section
     public function render(ProjectSnapshot $snapshot, Depth $depth): string
     {
         $bridgeStatus = $snapshot->bridgeActive
-            ? 'ACTIVE — generated classes extend the local bridge classes in `App\\Modules\\Core` (created by `jw:init`). Add project-wide behavior there, never in vendor.'
+            ? "ACTIVE — generated classes extend the local bridge classes in `{$snapshot->rootNamespace}\\Core` (created by `jw:init`). Add project-wide behavior there, never in vendor."
             : 'NOT INITIALIZED — generated classes extend the vendor `Jackwander\\ModuleMaker\\Base\\*` classes directly. Run `php artisan jw:init` to create a local bridge.';
 
         if ($depth === Depth::Compressed) {
             return "# {$this->title()}\n\n"
                 . "- Modular Laravel app: features live in isolated modules under `{$snapshot->modulesPath}` (`{$snapshot->rootNamespace}\\{Module}` namespace).\n"
-                . "- Inheritance chain: Vendor `Base\\*` -> `App\\Modules\\Core\\*` bridge -> module class. Bridge: {$bridgeStatus}\n"
+                . "- Inheritance chain: Vendor `Base\\*` -> `{$snapshot->rootNamespace}\\Core\\*` bridge -> module class. Bridge: {$bridgeStatus}\n"
                 . "- Module `{Module}ServiceProvider` classes and `Routes/api.php` files are auto-discovered and registered; routes are prefixed `{$snapshot->apiPrefix}`.\n"
                 . "- Never edit files in `vendor/`; customize via the Core bridge or published stubs.\n";
         }

@@ -22,6 +22,7 @@ class McpServerTest extends TestCase
     {
         File::deleteDirectory(app_path('Modules'));
         File::deleteDirectory(base_path('.ai'));
+        File::delete(base_path('modules_statuses.json'));
 
         parent::tearDown();
     }
@@ -145,6 +146,31 @@ class McpServerTest extends TestCase
 
             $this->assertTrue($result['isError'] ?? false, "{$blocked} should be blocked");
         }
+    }
+
+    public function test_run_generator_blocks_module_toggles_but_allows_list()
+    {
+        Artisan::call('jw:make-module', ['name' => 'Billing']);
+
+        foreach (['jw:module:disable', 'jw:module:enable'] as $blocked) {
+            foreach ([true, false] as $dryRun) {
+                $result = $this->callTool('run_generator', [
+                    'command' => $blocked,
+                    'arguments' => ['name' => 'Billing'],
+                    'dry_run' => $dryRun,
+                ]);
+
+                $this->assertTrue($result['isError'] ?? false, "{$blocked} should be blocked");
+            }
+        }
+
+        $this->assertFileDoesNotExist(base_path('modules_statuses.json'));
+
+        $result = $this->callTool('run_generator', ['command' => 'jw:module:list', 'dry_run' => false]);
+
+        $this->assertArrayNotHasKey('isError', $result);
+        $this->assertStringContainsString('Exit code: 0', $result['content'][0]['text']);
+        $this->assertStringContainsString('Billing', $result['content'][0]['text']);
     }
 
     public function test_run_generator_respects_config_kill_switch()

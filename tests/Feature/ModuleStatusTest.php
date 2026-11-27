@@ -101,6 +101,25 @@ class ModuleStatusTest extends TestCase
         $this->assertFileDoesNotExist(base_path('modules_statuses.json'));
     }
 
+    public function test_is_enabled_public_api_and_documented_schedule_guard()
+    {
+        $this->makeModule('Billing');
+        $this->makeModule('Person');
+        $this->writeStatuses('{"Billing": false}');
+
+        $this->assertFalse(ModuleStatus::isEnabled('Billing'));
+        $this->assertTrue(ModuleStatus::isEnabled('Person'));
+        $this->assertTrue(ModuleStatus::isEnabled('Unlisted'));
+
+        // README example: a schedule entry guarded on the module's status.
+        $schedule = $this->app->make(\Illuminate\Console\Scheduling\Schedule::class);
+        $billing = $schedule->command('inspire')->when(fn () => ModuleStatus::isEnabled('Billing'));
+        $person = $schedule->command('inspire')->when(fn () => ModuleStatus::isEnabled('Person'));
+
+        $this->assertFalse($billing->filtersPass($this->app));
+        $this->assertTrue($person->filtersPass($this->app));
+    }
+
     public function test_hand_edited_core_false_is_ignored()
     {
         $this->makeModule('Core');

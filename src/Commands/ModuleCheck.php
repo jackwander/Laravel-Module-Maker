@@ -15,7 +15,8 @@ class ModuleCheck extends Command
     {
         $this->info("Checking Module Maker System:");
 
-        $modulesPath = app_path('Modules');
+        $modulesPath = config('module-maker.paths.modules', app_path('Modules'));
+        $baseNamespace = config('module-maker.namespaces.root', 'App\\Modules');
         $checkCount = 0;
 
         // 1. Check Directory
@@ -30,57 +31,48 @@ class ModuleCheck extends Command
         // Check if the Package Service Provider is registered in Laravel
         $packageLoaded = $this->laravel->providerIsLoaded(\Jackwander\ModuleMaker\ModuleServiceProvider::class);
 
-        // Check if any modules exist, and if so, if their providers are being registered
-        $modulesPath = app_path('Modules');
-        $modules = File::exists($modulesPath) ? File::directories($modulesPath) : [];
-
         $this->components->twoColumnDetail(
             'Package Status',
             $packageLoaded ? '<fg=green>Active</>' : '<fg=red>Inactive</>'
         );
 
         // 3. List Detected Modules
-        $modules = File::exists($modulesPath) ? File::directories($modulesPath) : [];
+        $modules = ModuleStatus::modules();
         if (count($modules) > 0) {
             $this->newLine();
             $this->info("Detected Modules:");
             $statuses = ModuleStatus::read() ?? [];
-            foreach ($modules as $path) {
-                $name = basename($path);
+            foreach ($modules as $name) {
                 if (! ModuleStatus::isEnabled($name, $statuses)) {
                     $this->components->twoColumnDetail($name, '<fg=yellow>Disabled</>');
                     continue;
                 }
-                $hasProvider = class_exists("App\\Modules\\{$name}\\Providers\\{$name}ServiceProvider");
+                $hasProvider = class_exists("{$baseNamespace}\\{$name}\\Providers\\{$name}ServiceProvider");
                 $this->components->twoColumnDetail($name, $hasProvider ? '<fg=green>Loaded</>' : '<fg=gray>No Provider Found</>');
             }
         }
 
         $this->newLine();
-        $this->showSeederHealth();
+        $this->showSeederHealth($modulesPath, $baseNamespace);
         $this->newLine();
         $this->info("Health check complete.");
     }
 
-    protected function showSeederHealth()
+    protected function showSeederHealth($modulesPath, $baseNamespace)
     {
         $this->info("\n🌱 Modular Seeder Discovery:");
-        $modulesPath = app_path('Modules');
         $foundSeeders = [];
 
         if (!File::exists($modulesPath)) return;
 
-        $modules = File::directories($modulesPath);
-
-        foreach ($modules as $module) {
-            $moduleName = basename($module);
-            $seederPath = "{$module}/Database/Seeders";
+        foreach (ModuleStatus::modules() as $moduleName) {
+            $seederPath = "{$modulesPath}/{$moduleName}/Database/Seeders";
 
             if (File::exists($seederPath)) {
                 $files = File::files($seederPath);
                 foreach ($files as $file) {
                     $className = str_replace('.php', '', $file->getFilename());
-                    $foundSeeders[] = "App\\Modules\\{$moduleName}\\Database\\Seeders\\{$className}";
+                    $foundSeeders[] = "{$baseNamespace}\\{$moduleName}\\Database\\Seeders\\{$className}";
                 }
             }
         }

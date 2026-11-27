@@ -26,14 +26,15 @@ class MakeMigration extends Command
         $create = $this->option('create');
         $table = $this->option('table');
 
-        $modulePath = app_path("Modules/{$moduleName}/Database/Migrations");
-        if (!$this->files->exists($modulePath)) {
-            $this->error("$moduleName not found.");
+        if (!$moduleName) {
+            $this->error('The --module flag is required.');
             return 1;
         }
 
-        if (!$moduleName) {
-            $this->error('The --module flag is required.');
+        $basePath = config('module-maker.paths.modules', app_path('Modules'));
+        $modulePath = "{$basePath}/{$moduleName}/Database/Migrations";
+        if (!$this->files->exists($modulePath)) {
+            $this->error("$moduleName not found.");
             return 1;
         }
 

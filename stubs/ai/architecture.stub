@@ -8,9 +8,9 @@ This application uses **jackwander/laravel-module-maker v{{ packageVersion }}** 
 
 ```
 Vendor Base (read-only, in vendor/)          App Core bridge (editable)          Module class
-Jackwander\ModuleMaker\Base\BaseService  ->  App\Modules\Core\BaseService    ->  PersonService
-Jackwander\ModuleMaker\Base\BaseApiController -> App\Modules\Core\BaseApiController -> PersonsController
-Jackwander\ModuleMaker\Base\BaseModel    ->  App\Modules\Core\BaseModel      ->  Person
+Jackwander\ModuleMaker\Base\BaseService  ->  {{ rootNamespace }}\Core\BaseService    ->  PersonService
+Jackwander\ModuleMaker\Base\BaseApiController -> {{ rootNamespace }}\Core\BaseApiController -> PersonsController
+Jackwander\ModuleMaker\Base\BaseModel    ->  {{ rootNamespace }}\Core\BaseModel      ->  Person
 ```
 
 Bridge status: {{ bridgeStatus }}

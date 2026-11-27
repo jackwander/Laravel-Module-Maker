@@ -96,8 +96,8 @@ class ContextBuilder
     public function buildSummary(ProjectSnapshot $snapshot): string
     {
         $bridgeNote = $snapshot->bridgeActive
-            ? 'Generated classes extend the local bridge in `App\\Modules\\Core` (jw:init active) — put project-wide logic there.'
-            : 'The `App\\Modules\\Core` bridge is not initialized; run `php artisan jw:init` before heavy customization.';
+            ? "Generated classes extend the local bridge in `{$snapshot->rootNamespace}\\Core` (jw:init active) — put project-wide logic there."
+            : "The `{$snapshot->rootNamespace}\\Core` bridge is not initialized; run `php artisan jw:init` before heavy customization.";
 
         $tooling = array_keys(array_filter($snapshot->tooling));
 

@@ -33,7 +33,15 @@ class MakeFactory extends Command
         $modelName = Str::studly(Str::singular($name));
         $factoryClassName = "{$modelName}Factory";
 
-        $modulePath = "app/Modules/{$moduleName}/Database/Factories";
+        $basePath = config('module-maker.paths.modules', app_path('Modules'));
+        $baseNamespace = config('module-maker.namespaces.root', 'App\\Modules');
+
+        if (!$this->files->exists("{$basePath}/{$moduleName}")) {
+            $this->error("$moduleName not found.");
+            return 1;
+        }
+
+        $modulePath = "{$basePath}/{$moduleName}/Database/Factories";
 
         if (!$this->files->exists($modulePath)) {
             $this->files->makeDirectory($modulePath, 0755, true);
@@ -45,10 +53,10 @@ class MakeFactory extends Command
             $content = <<<EOT
 <?php
 
-namespace App\Modules\\{$moduleName}\Database\Factories;
+namespace {$baseNamespace}\\{$moduleName}\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Modules\\{$moduleName}\Models\\{$modelName};
+use {$baseNamespace}\\{$moduleName}\Models\\{$modelName};
 
 class {$factoryClassName} extends Factory
 {

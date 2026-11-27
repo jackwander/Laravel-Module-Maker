@@ -35,7 +35,15 @@ class MakeSeeder extends Command
             $className .= 'Seeder';
         }
 
-        $modulePath = "app/Modules/{$moduleName}/Database/Seeders";
+        $basePath = config('module-maker.paths.modules', app_path('Modules'));
+        $baseNamespace = config('module-maker.namespaces.root', 'App\\Modules');
+
+        if (!$this->files->exists("{$basePath}/{$moduleName}")) {
+            $this->error("$moduleName not found.");
+            return 1;
+        }
+
+        $modulePath = "{$basePath}/{$moduleName}/Database/Seeders";
 
         if (!$this->files->exists($modulePath)) {
             $this->files->makeDirectory($modulePath, 0755, true);
@@ -48,7 +56,7 @@ class MakeSeeder extends Command
             $content = <<<EOT
 <?php
 
-namespace App\Modules\\{$moduleName}\Database\Seeders;
+namespace {$baseNamespace}\\{$moduleName}\Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -69,15 +77,15 @@ EOT;
 
             $this->files->put($seederPath, $content);
             $this->info("Seeder created: {$seederPath}");
-            $this->instructCopy($moduleName, $className);
+            $this->instructCopy($baseNamespace, $moduleName, $className);
         } else {
             $this->warn("Seeder file: {$seederPath} already exists.");
         }
     }
 
-    protected function instructCopy($moduleName, $seederName)
+    protected function instructCopy($baseNamespace, $moduleName, $seederName)
     {
-        $seederNamespace = "App\\Modules\\{$moduleName}\\Database\\Seeders\\{$seederName}";
+        $seederNamespace = "{$baseNamespace}\\{$moduleName}\\Database\\Seeders\\{$seederName}";
 
         $this->line("\n🌱 Add this to your <fg=cyan>database/seeders/DatabaseSeeder.php</>:");
         $this->info("        \$this->call(\\{$seederNamespace}::class);");

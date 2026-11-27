@@ -1,0 +1,13 @@
+<?php
+
+namespace App\Modules\Core;
+
+use Jackwander\ModuleMaker\Base\BaseApiController as VendorBaseApiController;
+
+class BaseApiController extends VendorBaseApiController
+{
+    /**
+     * Add global API controller logic here.
+     * All your module controllers will inherit this.
+     */
+}

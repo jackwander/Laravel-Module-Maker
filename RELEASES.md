@@ -1,3 +1,28 @@
+# 🐛 Release v2.8.1 — Respect Your Modules Path (2026-11-28)
+
+If you moved your modules out of `app/Modules` (via `module-maker.paths.modules` and `module-maker.namespaces.root`), several commands, `jw:init` among them, were still using the old place. `jw:init` also overwrote your whole config file. On the default config, generated files and paths are unchanged.
+
+### 🐛 Bug Fixes
+
+- **`jw:check`** now checks, lists and builds its seeder snippet from your configured modules path and namespace, instead of always using `app/Modules` and `App\Modules`.
+- **`jw:make-seeder` and `jw:make-factory`** now write into your configured modules path with your configured namespace. Before, they wrote to `app/Modules/...` relative to the current working directory, so running artisan from another directory put the files in the wrong place. They now print the absolute path of the created file.
+- **`jw:make-migration`** now looks for the module's `Database/Migrations` folder under your configured modules path.
+- **Factory name guessing** (`Model::factory()`) now matches models under your configured root namespace, not only `App\Modules`.
+- **`jw:init` no longer overwrites your config.** Before, it replaced `config/module-maker.php` with the default template every time, silently wiping a custom modules path, namespace or any other key you had added. Now it only writes the template if no config exists yet. Otherwise it swaps just the three vendor `base_classes` references for your Core classes and leaves every other byte alone. If you customised a base class, it leaves that entry alone and prints the line to paste. Running it twice changes nothing.
+- **`jw:init` respects your modules location.** The Core bridge is created in `{paths.modules}/Core` with namespace `{namespaces.root}\Core`. Published `core-*` stubs keep working as they are. The AI context files name the same namespace.
+- **Clearer generator errors.** `jw:make-migration` without `--module` now says the flag is required. `jw:make-seeder` and `jw:make-factory` now refuse an unknown module (`{Module} not found.`) instead of creating its folders.
+- **Security: the MCP `run_generator` tool now refuses `jw:module:disable` and `jw:module:enable`**, so an AI assistant can't switch off a module's provider and routes. `jw:module:list` is read-only and stays available.
+
+### 🧹 Housekeeping
+
+- The MCP command catalog now lists the status file as what `jw:module:disable` and `jw:module:enable` change.
+
+### 📚 Docs
+
+- The README now says exactly what disabling a module stops and what it doesn't, with examples for guarding schedules and jobs using `ModuleStatus::isEnabled()`.
+
+---
+
 # 🔌 Release v2.8.0 — Module Enable/Disable (2026-11-28)
 
 You can now switch a module off without deleting it. Nothing changes for existing apps: with no status file, every module stays enabled.
