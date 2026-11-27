@@ -28,12 +28,19 @@ class ListModules implements Tool
 
     public function handle(array $arguments): string
     {
-        $modules = $this->inspector->inspect()->modules;
+        $snapshot = $this->inspector->inspect();
+        $modules = $snapshot->modules;
 
         if (! $modules) {
             return 'No modules exist yet. Create one with: php artisan jw:make-module {Name}';
         }
 
-        return json_encode($modules, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        $out = json_encode($modules, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+        if ($snapshot->disabledModules) {
+            $out .= "\n\nDisabled modules (provider and routes not loaded): " . implode(', ', $snapshot->disabledModules);
+        }
+
+        return $out;
     }
 }

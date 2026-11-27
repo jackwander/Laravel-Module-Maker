@@ -47,6 +47,7 @@ return [
     'paths' => [
         'modules'    => base_path('app/Modules'), // Root folder for modules
         'api_prefix' => 'api/v1',                 // URL prefix for generated routes
+        'statuses'   => base_path('modules_statuses.json'), // Module enable/disable state (v2.8.0+)
     ],
 
     'namespaces' => [
@@ -277,6 +278,40 @@ php artisan jw:ai:init
 - `--no-mcp` : skip MCP registration.
 
 Customize via `config/module-ai.php` (sections, ignored modules, custom adapters) and drop organization-specific standards into `.ai/custom/*.md` — they are merged into the generated AI rules on every run. Disable generator execution by assistants with `module-ai.mcp.allow_run_generator => false`.
+
+---
+
+### 🔌 Enabling & Disabling Modules (v2.8.0+)
+
+Switch a module off without deleting it:
+
+```shell
+php artisan jw:module:disable Billing
+php artisan jw:module:enable Billing
+php artisan jw:module:list      # every module with its enabled/disabled status
+```
+
+State is stored in a JSON status file, `modules_statuses.json` in your project root by default (set `paths.statuses` in `config/module-maker.php` to move it):
+
+```json
+{
+    "Billing": false,
+    "Person": true
+}
+```
+
+**What "disabled" means:**
+- The module's `{Module}ServiceProvider` is not registered and its `Routes/api.php` is not loaded.
+- Anything that provider wires goes with it: migrations, events, bindings, and so on.
+- The module's classes are still autoloadable, so imports from other modules keep working. There is no dependency checking: disabling a module that another module relies on is up to you.
+- Generators (`jw:make-*`), `jw:module:list`, and the AI context / MCP tools still see a disabled module. `jw:check` and the AI module inventory label it as disabled.
+
+**Rules:**
+- No file, a module missing from the file, or a file that is not valid JSON all mean **enabled**, so existing apps behave as before. Only an explicit `false` disables a module. Enabling writes `true` rather than removing the key.
+- The commands refuse to overwrite a status file that is not valid JSON. Fix or delete it first.
+- The `Core` module (created by `jw:init`) cannot be disabled. `jw:module:disable Core` refuses, and a hand-edited `"Core": false` is ignored.
+- **Commit the status file** so module state deploys with your code. Discovery reads only this file and the modules directory, never the cache or database.
+- If you cache routes or config, rebuild after a change: `php artisan optimize:clear` (or re-run `route:cache`).
 
 ---
 

@@ -4,6 +4,7 @@ namespace Jackwander\ModuleMaker\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Jackwander\ModuleMaker\ModuleStatus;
 
 class ModuleCheck extends Command
 {
@@ -43,8 +44,13 @@ class ModuleCheck extends Command
         if (count($modules) > 0) {
             $this->newLine();
             $this->info("Detected Modules:");
+            $statuses = ModuleStatus::read() ?? [];
             foreach ($modules as $path) {
                 $name = basename($path);
+                if (! ModuleStatus::isEnabled($name, $statuses)) {
+                    $this->components->twoColumnDetail($name, '<fg=yellow>Disabled</>');
+                    continue;
+                }
                 $hasProvider = class_exists("App\\Modules\\{$name}\\Providers\\{$name}ServiceProvider");
                 $this->components->twoColumnDetail($name, $hasProvider ? '<fg=green>Loaded</>' : '<fg=gray>No Provider Found</>');
             }

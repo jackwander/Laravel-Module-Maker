@@ -102,7 +102,10 @@ class ContextBuilder
         $tooling = array_keys(array_filter($snapshot->tooling));
 
         $modulesLine = $snapshot->modules
-            ? 'Existing modules: ' . implode(', ', array_keys($snapshot->modules)) . '.'
+            ? 'Existing modules: ' . implode(', ', array_map(
+                fn ($name) => in_array($name, $snapshot->disabledModules, true) ? "{$name} (disabled)" : $name,
+                array_keys($snapshot->modules)
+            )) . '.'
             : 'No modules exist yet.';
 
         return $this->stamp($this->getStubContent('ai/summary', [

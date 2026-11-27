@@ -13,6 +13,9 @@ return [
     'paths' => [
         'modules' => base_path('app/Modules'),
         'api_prefix' => 'api/v1',
+        // JSON file of {"ModuleName": true|false} written by jw:module:enable/disable.
+        // Missing file or module = enabled. Commit it so module state deploys with code.
+        'statuses' => base_path('modules_statuses.json'),
     ],
 
     'namespaces' => [

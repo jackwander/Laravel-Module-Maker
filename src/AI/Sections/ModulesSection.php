@@ -30,7 +30,12 @@ class ModulesSection implements Section
         $out .= "| Module | Components present |\n| --- | --- |\n";
 
         foreach ($snapshot->modules as $name => $components) {
-            $out .= "| {$name} | " . ($components ? implode(', ', $components) : '—') . " |\n";
+            $label = in_array($name, $snapshot->disabledModules, true) ? "{$name} (disabled)" : $name;
+            $out .= "| {$label} | " . ($components ? implode(', ', $components) : '—') . " |\n";
+        }
+
+        if ($snapshot->disabledModules) {
+            $out .= "\nDisabled modules (`jw:module:disable`) keep their code, but their service provider and routes are not loaded.\n";
         }
 
         $out .= "\nLive detail per module: MCP tool `module_structure {\"module\": \"Name\"}`.\n";

@@ -1,3 +1,28 @@
+# 🔌 Release v2.8.0 — Module Enable/Disable (2026-11-28)
+
+You can now switch a module off without deleting it. Nothing changes for existing apps: with no status file, every module stays enabled.
+
+### 🚀 New Features
+
+- **`jw:module:disable` / `jw:module:enable`**: Toggle a module by name. The state is written to `modules_statuses.json` in your project root (configurable via `module-maker.paths.statuses`), pretty-printed with sorted keys so it diffs cleanly. Commit it, and module state deploys with your code.
+
+  ```shell
+  php artisan jw:module:disable Billing
+  php artisan optimize:clear   # only if you cache routes/config
+  ```
+
+- **`jw:module:list`**: A table of every module and whether it is enabled or disabled.
+
+### 🧠 How it works
+
+- A disabled module's service provider is not registered and its `Routes/api.php` is not loaded, so whatever that provider wires (migrations, events, bindings) goes with it. Its classes are still autoloadable, so imports from other modules keep working. There is no dependency checking.
+- Discovery is still a plain filesystem read. It never touches the cache or the database, so the v2.7.3 boot fix holds.
+- A missing file, a module not listed in it, or a file that is not valid JSON all mean enabled. A broken file never crashes boot, and the commands refuse to overwrite it.
+- The `Core` bridge module can't be disabled, even by hand-editing the file.
+- `jw:check`, the AI module inventory and the MCP `list_modules` tool label disabled modules instead of hiding them. Generators keep working on disabled modules.
+
+---
+
 # 🧪 Release v2.7.5 — Laravel 13 in CI (2026-11-28)
 
 A maintenance release with no behaviour change. There is nothing to change in your app.

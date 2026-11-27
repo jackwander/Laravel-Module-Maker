@@ -1,3 +1,20 @@
+## 2.8.0 - November 28, 2026
+
+### Added
+- **Module enable/disable:** `jw:module:disable {name}`, `jw:module:enable {name}` and `jw:module:list`. State lives in a JSON status file (`{"Module": true|false}`), `base_path('modules_statuses.json')` by default, configurable via `module-maker.paths.statuses`. A disabled module's service provider is not registered and its `Routes/api.php` is not loaded; its classes stay autoloadable.
+- **Config:** `paths.statuses` key.
+
+### Changed
+- **Module discovery:** `ModuleServiceProvider::discoverModules()` skips modules set to `false` in the status file. A missing file, a module absent from the file, or invalid JSON means enabled, so existing apps are unaffected. Discovery still reads only the filesystem (no cache, no database).
+- **`jw:check`:** Reports disabled modules as `Disabled`.
+- **AI context / MCP:** The module inventory, summary and `list_modules` tool mark disabled modules instead of hiding them.
+
+### Notes
+- `Core` cannot be disabled: the command refuses and a hand-edited `"Core": false` is ignored.
+- Enabling writes `true`; keys are never removed. The commands refuse to overwrite a status file that is not valid JSON.
+
+---
+
 ## 2.7.5 - November 28, 2026
 
 Maintenance release; no runtime or behaviour change.

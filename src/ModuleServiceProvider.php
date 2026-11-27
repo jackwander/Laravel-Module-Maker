@@ -22,6 +22,9 @@ use Jackwander\ModuleMaker\Commands\{MakeController,
   MakeRule,
   MakeObserver,
   ModuleCheck,
+  ModuleDisable,
+  ModuleEnable,
+  ModuleList,
   MakeSeeder,
   Init,
   AiInit,
@@ -103,6 +106,9 @@ class ModuleServiceProvider extends ServiceProvider
             MakeObserver::class,
             MakeController::class,
             ModuleCheck::class,
+            ModuleDisable::class,
+            ModuleEnable::class,
+            ModuleList::class,
             MakeSeeder::class,
             MakeFactory::class,
             Init::class,
@@ -133,17 +139,14 @@ class ModuleServiceProvider extends ServiceProvider
      * fresh deploy before migrations run). A directory scan is cheap and has no
      * external dependencies, honouring the package's zero-DB discovery rule.
      *
+     * Modules set to `false` in the status file are left out, so their provider
+     * and routes are not wired. Use ModuleStatus::modules() for the full list.
+     *
      * @return array<int, string>
      */
     protected function discoverModules(): array
     {
-        $modulesPath = config('module-maker.paths.modules', app_path('Modules'));
-
-        if (! File::isDirectory($modulesPath)) {
-            return [];
-        }
-
-        return array_map('basename', File::directories($modulesPath));
+        return ModuleStatus::enabled(ModuleStatus::modules());
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Jackwander\ModuleMaker\AI;
 
 use Illuminate\Support\Facades\File;
 use Jackwander\ModuleMaker\AI\Support\ProjectSnapshot;
+use Jackwander\ModuleMaker\ModuleStatus;
 
 class Inspector
 {
@@ -17,6 +18,7 @@ class Inspector
     public function inspect(): ProjectSnapshot
     {
         $modulesPath = config('module-maker.paths.modules', app_path('Modules'));
+        $modules = $this->discoverModules($modulesPath);
         $serviceBase = config('module-maker.base_classes.service', \Jackwander\ModuleMaker\Base\BaseService::class);
 
         return new ProjectSnapshot(
@@ -28,10 +30,11 @@ class Inspector
             apiPrefix: config('module-maker.paths.api_prefix', 'api/v1'),
             baseClasses: config('module-maker.base_classes', []),
             bridgeActive: ! str_starts_with(ltrim($serviceBase, '\\'), 'Jackwander\\'),
-            modules: $this->discoverModules($modulesPath),
+            modules: $modules,
             tooling: $this->detectTooling(),
             composerScripts: $this->hostComposer()['scripts'] ?? [],
             publishedStubs: File::isDirectory(base_path('stubs/vendor/module-maker')),
+            disabledModules: array_values(array_diff(array_keys($modules), ModuleStatus::enabled(array_keys($modules)))),
         );
     }
 
