@@ -17,6 +17,7 @@ class ProjectSnapshot
         public array $tooling,
         public array $composerScripts,
         public bool $publishedStubs,
+        public array $disabledModules = [],
     ) {
     }
 
