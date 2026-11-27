@@ -34,6 +34,7 @@ class CursorAdapter extends AbstractFileAdapter
 
         $content = $this->getStubContent('ai/cursor-entry', [
             'packageVersion' => $snapshot->packageVersion,
+            'rootNamespace' => $snapshot->rootNamespace,
         ]);
 
         $results['.cursor/rules/module-maker.mdc'] = $this->putOwned(

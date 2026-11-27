@@ -35,8 +35,9 @@ class ModuleServiceProvider extends ServiceProvider
     public function boot()
     {
       Factory::guessFactoryNamesUsing(function (string $modelName) {
-          // If the model is in our Modules namespace...
-          if (Str::startsWith($modelName, 'App\\Modules\\')) {
+          // If the model is in our Modules namespace (resolved at call time)...
+          $root = trim(config('module-maker.namespaces.root', 'App\\Modules'), '\\') . '\\';
+          if (Str::startsWith($modelName, $root)) {
               // Convert: App\Modules\Employees\Models\Employee
               // To: App\Modules\Employees\Database\Factories\EmployeeFactory
               return str_replace(

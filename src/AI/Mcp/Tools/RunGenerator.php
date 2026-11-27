@@ -9,8 +9,11 @@ use Symfony\Component\Console\Output\BufferedOutput;
 
 class RunGenerator implements Tool
 {
-    /** Commands that are never callable through MCP. */
-    protected const BLOCKED = ['jw:mcp', 'jw:ai:init'];
+    /**
+     * Commands that are never callable through MCP. The module toggles change
+     * runtime wiring rather than generate files, so they stay out of AI reach.
+     */
+    protected const BLOCKED = ['jw:mcp', 'jw:ai:init', 'jw:module:disable', 'jw:module:enable'];
 
     public function __construct(protected CommandCatalog $catalog)
     {

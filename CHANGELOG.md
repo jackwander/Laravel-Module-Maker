@@ -1,3 +1,27 @@
+## 2.8.1 - November 28, 2026
+
+### Fixed
+- **Configured modules path/namespace ignored:** These commands hardcoded `app_path('Modules')`, a relative `app/Modules` path, or the `App\Modules` namespace instead of reading `module-maker.paths.modules` and `module-maker.namespaces.root`:
+  - `jw:check`: the directory check, module list, provider check and seeder snippet.
+  - `jw:make-seeder` and `jw:make-factory`: the target directory (previously relative to the current working directory) and the generated namespaces.
+  - `jw:make-migration`: the target directory.
+  - Factory name guessing (`Factory::guessFactoryNamesUsing`): the namespace prefix it matches.
+- **MCP command catalog:** `jw:module:disable` and `jw:module:enable` now list the status file under "creates". The `jw:init` entry names the configured modules directory.
+- **`jw:init` overwrote an existing config:** it rewrote `config/module-maker.php` unconditionally with the default template, wiping custom `paths.*`, `namespaces.root` and any other keys. It now writes the template only when no config file exists. Otherwise it replaces just the three vendor `base_classes` references with the Core classes, by plain string replacement, and leaves the rest of the file byte-for-byte. A customised entry is left alone and the line to paste is printed. Re-running is a no-op.
+- **`jw:init` ignored the configured location:** Core classes are now created in `{paths.modules}/Core` with namespace `{namespaces.root}\Core`. The `core-*` stubs use a `{{ namespace }}` placeholder; published stubs without it still work unchanged.
+- **AI context:** The architecture, summary and AI-rules text and the Cursor rules file now name `{namespaces.root}\Core` instead of a hardcoded `App\Modules\Core`.
+- **`jw:make-migration`:** A missing `--module` now reports "The --module flag is required." instead of " not found.".
+- **`jw:make-seeder` / `jw:make-factory`:** Now fail with "{Module} not found." (exit 1) when the module does not exist, instead of creating its directories.
+- **MCP `run_generator` could toggle modules (security):** `jw:module:disable` and `jw:module:enable` are now blocked, so an AI client cannot switch off a module's runtime wiring. `jw:module:list` (read-only) stays allowed.
+
+### Docs
+- **README:** "Enabling & Disabling Modules" now spells out what disabling stops (the module's provider and `Routes/api.php`) and what it doesn't (wiring outside the provider, auto-discovered policies, queued jobs, cached routes), with `ModuleStatus::isEnabled()` guard examples.
+
+### Notes
+- On the default config, generated files and paths are unchanged. The visible differences are: `jw:make-seeder` and `jw:make-factory` print the absolute path of the file they create; `jw:init` with an existing `config/module-maker.php` (for example a published one) now edits the three `base_classes` lines instead of replacing the whole file; and the generator error cases above.
+
+---
+
 ## 2.8.0 - November 28, 2026
 
 ### Added

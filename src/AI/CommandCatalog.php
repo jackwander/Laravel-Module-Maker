@@ -29,6 +29,9 @@ class CommandCatalog
         'jw:make-rule' => ['Rules/{Name}.php'],
         'jw:make-observer' => ['Observers/{Name}Observer.php'],
         'jw:check' => [],
+        'jw:module:disable' => ['modules_statuses.json entry (path: module-maker.paths.statuses)'],
+        'jw:module:enable' => ['modules_statuses.json entry (path: module-maker.paths.statuses)'],
+        'jw:module:list' => [],
         'jw:ai:init' => ['.ai/*.md', 'platform entry files', '.mcp.json'],
         'jw:mcp' => [],
     ];
@@ -73,13 +76,22 @@ class CommandCatalog
                 'description' => $command->getDescription(),
                 'arguments' => $arguments,
                 'options' => $options,
-                'creates' => self::OUTPUTS[$name] ?? [],
+                'creates' => str_replace('app/Modules', $this->modulesDir(), self::OUTPUTS[$name] ?? []),
             ];
         }
 
         ksort($catalog);
 
         return $catalog;
+    }
+
+    /** Configured modules directory, relative to the project root when inside it. */
+    protected function modulesDir(): string
+    {
+        $path = config('module-maker.paths.modules', app_path('Modules'));
+        $base = base_path() . '/';
+
+        return str_starts_with($path, $base) ? substr($path, strlen($base)) : $path;
     }
 
     public function find(string $name): ?array

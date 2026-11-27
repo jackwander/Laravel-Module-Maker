@@ -98,8 +98,8 @@ php artisan jw:init
 ```
 
 ### What this does:
-1.  **Creates Base Classes:** Generates `BaseModel`, `BaseApiController`, and `BaseService` in `app/Modules/Core/`.
-2.  **Localizes Config:** Automatically updates `config/module-maker.php` to point to these new local classes.
+1.  **Creates Base Classes:** Generates `BaseModel`, `BaseApiController`, and `BaseService` in `{paths.modules}/Core/` (default `app/Modules/Core/`) under the `{namespaces.root}\Core` namespace (default `App\Modules\Core`). Existing files are skipped.
+2.  **Localizes Config:** Points `base_classes` in `config/module-maker.php` at these local classes. With no config file yet, it writes a fresh one. With an existing file (since v2.8.1), it only swaps the three vendor `Jackwander\ModuleMaker\Base\*::class` references and leaves everything else in the file as it was. A `base_classes` entry you changed yourself is left alone, and the command prints the line to paste. Re-running it changes nothing.
 3.  **Hierarchy Bridge:** Your local classes extend the vendor classes, giving you the best of both worlds: automatic package updates and full project customization.
 
 ### Example: Customizing your Core
@@ -300,11 +300,43 @@ State is stored in a JSON status file, `modules_statuses.json` in your project r
 }
 ```
 
-**What "disabled" means:**
-- The module's `{Module}ServiceProvider` is not registered and its `Routes/api.php` is not loaded.
-- Anything that provider wires goes with it: migrations, events, bindings, and so on.
-- The module's classes are still autoloadable, so imports from other modules keep working. There is no dependency checking: disabling a module that another module relies on is up to you.
-- Generators (`jw:make-*`), `jw:module:list`, and the AI context / MCP tools still see a disabled module. `jw:check` and the AI module inventory label it as disabled.
+**What disabling stops, and what it doesn't.** The package wires exactly two things per module: it registers `{Module}ServiceProvider` and loads `Routes/api.php`. Disabling a module skips both. It is not a kill-switch for the module's code.
+
+| | |
+| --- | --- |
+| **Stopped** | The module's service provider. The generated provider only calls `loadMigrationsFrom()` (so `migrate`, `migrate:status` and rollbacks no longer see the module's migrations) and `mergeConfigFrom()` (so the module's `config.php` is not merged). Anything else you register inside that provider stops too: listeners, observers, bindings, commands, schedules. |
+| | The module's `Routes/api.php`. |
+| **Not stopped** | Anything wired outside the module's provider: listeners, observers or commands registered in your app's own providers or `bootstrap/app.php`, event discovery paths you added that point into the module, and schedules in `routes/console.php`. |
+| | Policies that Laravel's policy auto-discovery finds. In Laravel 12, `Gate` guesses `App\Modules\Billing\Policies\InvoicePolicy` for `App\Modules\Billing\Models\Invoice`, which is where `jw:make-policy` puts it, so the policy still resolves. |
+| | Queued jobs. Jobs already on the queue, and module jobs that other code dispatches, still run, because the classes stay autoloadable. |
+| | Direct use of the module's classes from other code. There is no dependency checking: disabling a module that another module relies on is up to you. |
+| | Routes that are already in a route cache, until you rebuild it. |
+
+**Guarding the rest yourself.** Check the status with `\Jackwander\ModuleMaker\ModuleStatus::isEnabled('Billing')`. The same rules apply as for discovery: a missing file or a module that isn't listed counts as enabled, and `Core` is always enabled.
+
+```php
+// routes/console.php: skip the task while Billing is disabled
+use Illuminate\Support\Facades\Schedule;
+use Jackwander\ModuleMaker\ModuleStatus;
+
+Schedule::command('billing:charge')->daily()->when(fn () => ModuleStatus::isEnabled('Billing'));
+```
+
+```php
+// app/Modules/Billing/Jobs/ChargeInvoice.php: drop the job while Billing is disabled
+public function handle(): void
+{
+    if (! \Jackwander\ModuleMaker\ModuleStatus::isEnabled('Billing')) {
+        return;
+    }
+
+    // ...
+}
+```
+
+Where you can, register a module's listeners, observers, commands and schedules inside its own `{Module}ServiceProvider`, so the switch covers them.
+
+Generators (`jw:make-*`), `jw:module:list`, and the AI context / MCP tools still see a disabled module. `jw:check` and the AI module inventory label it as disabled.
 
 **Rules:**
 - No file, a module missing from the file, or a file that is not valid JSON all mean **enabled**, so existing apps behave as before. Only an explicit `false` disables a module. Enabling writes `true` rather than removing the key.

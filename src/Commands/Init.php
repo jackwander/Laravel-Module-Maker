@@ -25,19 +25,21 @@ class Init extends Command
     {
         $this->info("🚀 Initializing Module Maker Core...");
 
-        $corePath = app_path('Modules/Core');
-        
+        $basePath = config('module-maker.paths.modules', app_path('Modules'));
+        $coreNamespace = trim(config('module-maker.namespaces.root', 'App\\Modules'), '\\') . '\\Core';
+        $corePath = "{$basePath}/Core";
+
         if (!$this->files->exists($corePath)) {
             $this->files->makeDirectory($corePath, 0755, true);
         }
 
-        // 1. Generate Base Classes in App\Modules\Core
-        $this->generateBaseClass('core-model', "{$corePath}/BaseModel.php");
-        $this->generateBaseClass('core-controller', "{$corePath}/BaseApiController.php");
-        $this->generateBaseClass('core-service', "{$corePath}/BaseService.php");
+        // 1. Generate Base Classes in {root}\Core
+        $this->generateBaseClass('core-model', "{$corePath}/BaseModel.php", $coreNamespace);
+        $this->generateBaseClass('core-controller', "{$corePath}/BaseApiController.php", $coreNamespace);
+        $this->generateBaseClass('core-service', "{$corePath}/BaseService.php", $coreNamespace);
 
         // 2. Localize the configuration
-        $this->updateConfiguration();
+        $this->updateConfiguration($coreNamespace);
 
         $this->newLine();
         $this->info("✅ Initialization complete!");
@@ -47,25 +49,72 @@ class Init extends Command
     /**
      * Generate a file from a stub.
      */
-    protected function generateBaseClass($stub, $path)
+    protected function generateBaseClass($stub, $path, $namespace)
     {
         if ($this->files->exists($path)) {
             $this->components->twoColumnDetail(basename($path), '<fg=yellow>Skipped (Exists)</>');
             return;
         }
 
-        $content = $this->getStubContent($stub, []);
+        $content = $this->getStubContent($stub, ['namespace' => $namespace]);
         $this->files->put($path, $content);
         $this->components->twoColumnDetail(basename($path), '<fg=green>Created</>');
     }
 
     /**
-     * Write the localized configuration to the host application.
+     * Point base_classes at the Core bridge.
+     *
+     * No config file yet: write the full template. Existing file: never rewrite
+     * it; swap only the vendor base-class references by plain string replacement,
+     * so every other byte (custom paths, namespaces, extra keys) survives.
      */
-    protected function updateConfiguration()
+    protected function updateConfiguration($coreNamespace)
     {
         $configPath = config_path('module-maker.php');
-        
+
+        if (!$this->files->exists($configPath)) {
+            $this->writeConfiguration($configPath);
+            return;
+        }
+
+        $content = $this->files->get($configPath);
+        $original = $content;
+        $pasteLines = [];
+
+        foreach (['service' => 'BaseService', 'api_controller' => 'BaseApiController', 'model' => 'BaseModel'] as $key => $class) {
+            // Matches both "\Jackwander\..." and "Jackwander\..."; the leading slash is kept as written.
+            $vendor = "Jackwander\\ModuleMaker\\Base\\{$class}::class";
+            $core = "{$coreNamespace}\\{$class}::class";
+
+            if (str_contains($content, $vendor)) {
+                $content = str_replace($vendor, $core, $content);
+                $this->components->twoColumnDetail("base_classes.{$key}", '<fg=green>Localized</>');
+            } elseif (str_contains($content, $core)) {
+                $this->components->twoColumnDetail("base_classes.{$key}", '<fg=yellow>Skipped (already Core)</>');
+            } else {
+                $this->components->twoColumnDetail("base_classes.{$key}", '<fg=yellow>Skipped (customised)</>');
+                $pasteLines[] = "        '{$key}' => \\{$core},";
+            }
+        }
+
+        if ($content !== $original) {
+            $this->files->put($configPath, $content);
+        }
+
+        if ($pasteLines) {
+            $this->newLine();
+            $this->warn('config/module-maker.php has custom base_classes entries, left untouched. To use the Core bridge, set:');
+            foreach ($pasteLines as $line) {
+                $this->line($line);
+            }
+        }
+    }
+
+    /**
+     * Write the localized configuration to the host application.
+     */
+    protected function writeConfiguration($configPath)
+    {
         $configContent = <<<'PHP'
 <?php
 

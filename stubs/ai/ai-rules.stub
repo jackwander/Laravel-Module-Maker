@@ -25,7 +25,7 @@ When generating code in this repository, follow these rules without exception.
 
 ## Architecture guards
 
-- Never modify anything in `vendor/`. Project-wide behavior changes go in the `App\Modules\Core` bridge classes.
+- Never modify anything in `vendor/`. Project-wide behavior changes go in the `{{ rootNamespace }}\Core` bridge classes.
 - Never add strict parameter/return types when overriding Base class public methods — loose signatures are a deliberate compatibility contract.
 - Respect published stub overrides in `stubs/vendor/module-maker/` when reasoning about what generated code looks like.
 
